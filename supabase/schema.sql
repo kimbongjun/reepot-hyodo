@@ -85,7 +85,7 @@ as $$
 declare
   next_count integer;
 begin
-  update public.public_comments
+  update public.comment_submissions
   set like_count = like_count + 1
   where id = target_comment_id
   returning like_count into next_count;
@@ -125,6 +125,12 @@ set
   like_count = excluded.like_count,
   hidden = excluded.hidden,
   created_at = excluded.created_at;
+
+update public.public_comments as public_comments
+set like_count = comment_submissions.like_count
+from public.comment_submissions as comment_submissions
+where public_comments.id = comment_submissions.id
+  and public_comments.like_count <> comment_submissions.like_count;
 
 do $$
 begin
