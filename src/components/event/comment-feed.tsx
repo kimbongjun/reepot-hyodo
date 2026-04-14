@@ -198,9 +198,7 @@ export function CommentFeed({ initialComments }: Props) {
                 ref={(node) => {
                   articleRefs.current[comment.id] = node;
                 }}
-                className={`rounded-[1.4rem] border border-white/12 bg-white/10 p-4 backdrop-blur transition ${
-                  focusedCommentId === comment.id ? "ring-2 ring-sky/60" : ""
-                }`}
+                className={`rounded-[1.4rem] border border-white/12 bg-white/10 p-4 backdrop-blur transition`}
                 style={
                   index < MAX_VISIBLE_COMMENTS
                     ? undefined
@@ -221,8 +219,7 @@ export function CommentFeed({ initialComments }: Props) {
                 <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/88">
                   {comment.message}
                 </p>
-                <div className="mt-4 flex items-center justify-between gap-3">
-                  <span className="text-xs text-white/55">응원 메시지에 좋아요를 남길 수 있어요.</span>
+                <div className="mt-4 flex items-center justify-between gap-3">                  
                   <button
                     type="button"
                     onClick={() => handleLike(comment.id)}

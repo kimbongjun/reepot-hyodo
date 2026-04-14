@@ -51,9 +51,29 @@ security definer
 as $$
 begin
   insert into public.public_comments (id, nickname, message, like_count, hidden, created_at)
-  values (new.id, new.nickname, new.message, new.like_count, new.hidden, new.created_at);
+  values (new.id, new.nickname, new.message, new.like_count, new.hidden, new.created_at)
+  on conflict (id) do update
+  set
+    nickname = excluded.nickname,
+    message = excluded.message,
+    like_count = excluded.like_count,
+    hidden = excluded.hidden,
+    created_at = excluded.created_at;
 
   return new;
+end;
+$$;
+
+create or replace function public.delete_public_comment()
+returns trigger
+language plpgsql
+security definer
+as $$
+begin
+  delete from public.public_comments
+  where id = old.id;
+
+  return old;
 end;
 $$;
 
@@ -75,10 +95,36 @@ end;
 $$;
 
 drop trigger if exists comment_submissions_sync_public on public.comment_submissions;
+drop trigger if exists comment_submissions_delete_public on public.comment_submissions;
 
 create trigger comment_submissions_sync_public
-after insert on public.comment_submissions
+after insert or update on public.comment_submissions
 for each row execute procedure public.sync_public_comment();
+
+create trigger comment_submissions_delete_public
+after delete on public.comment_submissions
+for each row execute procedure public.delete_public_comment();
+
+update public.comment_submissions
+set hidden = false
+where hidden = true;
+
+insert into public.public_comments (id, nickname, message, like_count, hidden, created_at)
+select
+  id,
+  nickname,
+  message,
+  like_count,
+  hidden,
+  created_at
+from public.comment_submissions
+on conflict (id) do update
+set
+  nickname = excluded.nickname,
+  message = excluded.message,
+  like_count = excluded.like_count,
+  hidden = excluded.hidden,
+  created_at = excluded.created_at;
 
 do $$
 begin

@@ -170,14 +170,6 @@ export async function updateCommentHidden(commentId: string, hidden: boolean) {
     throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
   }
 
-  const { error: publicError } = await supabase
-    .from(PUBLIC_TABLE)
-    .update({ hidden })
-    .eq("id", commentId);
-  if (publicError) {
-    throw publicError;
-  }
-
   const { error: adminError } = await supabase
     .from(ADMIN_TABLE)
     .update({ hidden })
