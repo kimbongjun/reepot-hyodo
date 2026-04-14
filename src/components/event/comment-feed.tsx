@@ -164,10 +164,7 @@ export function CommentFeed({ initialComments }: Props) {
       className="rounded-[1.8rem] border border-brand/10 bg-[linear-gradient(180deg,#2d3b64_0%,#3d4d7a_100%)] p-6 text-white shadow-panel"
     >
       <div className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-white/65">
-            Live Comments
-          </p>
+        <div>          
           <h2 className="mt-2 font-[var(--font-display)] text-2xl font-black tracking-[-0.03em]">
             방금 등록된 참여 메시지
           </h2>
