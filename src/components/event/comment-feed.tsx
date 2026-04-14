@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Heart } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { sanitizeRealtimeComment } from "@/lib/comments";
 import type { PublicComment } from "@/lib/types";
@@ -9,8 +10,114 @@ type Props = {
   initialComments: PublicComment[];
 };
 
+const MAX_VISIBLE_COMMENTS = 5;
+
 export function CommentFeed({ initialComments }: Props) {
-  const [comments, setComments] = useState(initialComments);
+  const [comments, setComments] = useState(initialComments.filter((item) => !item.hidden));
+  const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [focusedCommentId, setFocusedCommentId] = useState<string | null>(
+    initialComments.find((item) => !item.hidden)?.id ?? null
+  );
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const articleRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  function upsertComment(nextItem: PublicComment, options?: { focus?: boolean }) {
+    setComments((current) => {
+      if (nextItem.hidden) {
+        return current.filter((item) => item.id !== nextItem.id);
+      }
+
+      const index = current.findIndex((item) => item.id === nextItem.id);
+      if (index >= 0) {
+        const next = [...current];
+        next[index] = {
+          ...next[index],
+          ...nextItem
+        };
+        return next;
+      }
+
+      return [nextItem, ...current].slice(0, 50);
+    });
+
+    if (options?.focus && !nextItem.hidden) {
+      setFocusedCommentId(nextItem.id);
+    }
+  }
+
+  function updateCommentLikeCount(commentId: string, likeCount: number) {
+    setComments((current) =>
+      current.map((item) =>
+        item.id === commentId
+          ? {
+              ...item,
+              like_count: likeCount
+            }
+          : item
+      )
+    );
+  }
+
+  async function handleLike(commentId: string) {
+    if (pendingLikes[commentId]) {
+      return;
+    }
+
+    const currentComment = comments.find((item) => item.id === commentId);
+    if (!currentComment) {
+      return;
+    }
+
+    const previousLikeCount = currentComment.like_count;
+
+    setFeedback(null);
+    setPendingLikes((current) => ({
+      ...current,
+      [commentId]: true
+    }));
+    updateCommentLikeCount(commentId, previousLikeCount + 1);
+
+    try {
+      const response = await fetch(`/api/comments/${commentId}/like`, {
+        method: "POST"
+      });
+      const result = (await response.json()) as {
+        likeCount?: number;
+        message?: string;
+      };
+
+      if (!response.ok || typeof result.likeCount !== "number") {
+        throw new Error(result.message ?? "좋아요 처리에 실패했습니다.");
+      }
+
+      updateCommentLikeCount(commentId, result.likeCount);
+    } catch (error) {
+      updateCommentLikeCount(commentId, previousLikeCount);
+      setFeedback(error instanceof Error ? error.message : "좋아요 처리에 실패했습니다.");
+    } finally {
+      setPendingLikes((current) => ({
+        ...current,
+        [commentId]: false
+      }));
+    }
+  }
+
+  useEffect(() => {
+    if (!focusedCommentId) {
+      return;
+    }
+
+    const target = articleRefs.current[focusedCommentId];
+    if (!target) {
+      return;
+    }
+
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+  }, [comments, focusedCommentId]);
 
   useEffect(() => {
     const supabase = createBrowserSupabaseClient();
@@ -26,13 +133,21 @@ export function CommentFeed({ initialComments }: Props) {
           table: "public_comments"
         },
         (payload) => {
+          upsertComment(sanitizeRealtimeComment(payload.new), { focus: true });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "public_comments"
+        },
+        (payload) => {
           const nextItem = sanitizeRealtimeComment(payload.new);
-          setComments((current) => {
-            if (current.some((item) => item.id === nextItem.id)) {
-              return current;
-            }
-
-            return [nextItem, ...current].slice(0, 50);
+          const previousItem = sanitizeRealtimeComment(payload.old ?? {});
+          upsertComment(nextItem, {
+            focus: !nextItem.hidden && nextItem.created_at !== previousItem.created_at
           });
         }
       )
@@ -63,29 +178,71 @@ export function CommentFeed({ initialComments }: Props) {
       </div>
 
       <div className="mt-6 space-y-3">
+        {feedback ? (
+          <div className="rounded-[1.2rem] border border-rose-200/40 bg-rose-500/15 px-4 py-3 text-sm text-white/92">
+            {feedback}
+          </div>
+        ) : null}
+
         {comments.length ? (
-          comments.map((comment) => (
-            <article
-              key={comment.id}
-              className="rounded-[1.4rem] border border-white/12 bg-white/10 p-4 backdrop-blur"
-            >
-              <div className="flex items-center justify-between gap-4">
-                <p className="font-bold">{comment.nickname}</p>
-                <time className="text-xs text-white/60">
-                  {new Intl.DateTimeFormat("ko-KR", {
-                    dateStyle: "short",
-                    timeStyle: "short"
-                  }).format(new Date(comment.created_at))}
-                </time>
-              </div>
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/88">
-                {comment.message}
-              </p>
-            </article>
-          ))
+          <div
+            ref={scrollContainerRef}
+            className="max-h-[35rem] space-y-3 overflow-y-auto pr-2"
+            style={{
+              scrollbarGutter: "stable"
+            }}
+          >
+            {comments.map((comment, index) => (
+              <article
+                key={comment.id}
+                ref={(node) => {
+                  articleRefs.current[comment.id] = node;
+                }}
+                className={`rounded-[1.4rem] border border-white/12 bg-white/10 p-4 backdrop-blur transition ${
+                  focusedCommentId === comment.id ? "ring-2 ring-sky/60" : ""
+                }`}
+                style={
+                  index < MAX_VISIBLE_COMMENTS
+                    ? undefined
+                    : {
+                        scrollMarginTop: "1rem"
+                      }
+                }
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <p className="font-bold">{comment.nickname}</p>
+                  <time className="text-xs text-white/60">
+                    {new Intl.DateTimeFormat("ko-KR", {
+                      dateStyle: "short",
+                      timeStyle: "short"
+                    }).format(new Date(comment.created_at))}
+                  </time>
+                </div>
+                <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/88">
+                  {comment.message}
+                </p>
+                <div className="mt-4 flex items-center justify-between gap-3">
+                  <span className="text-xs text-white/55">응원 메시지에 좋아요를 남길 수 있어요.</span>
+                  <button
+                    type="button"
+                    onClick={() => handleLike(comment.id)}
+                    disabled={Boolean(pendingLikes[comment.id])}
+                    aria-label={`${comment.nickname} 댓글에 좋아요`}
+                    className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/16 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <Heart
+                      className="h-4 w-4"
+                      fill={comment.like_count > 0 ? "currentColor" : "none"}
+                    />
+                    <span>{comment.like_count}</span>
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
         ) : (
           <div className="rounded-[1.4rem] border border-dashed border-white/20 bg-white/5 p-8 text-center text-sm text-white/70">
-            아직 등록된 메시지가 없습니다. 첫 참여를 남겨 보세요.
+            아직 등록된 메시지가 없습니다. 첫 참여 메시지를 남겨 보세요.
           </div>
         )}
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useDeferredValue } from "react";
+import { useDeferredValue, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useAdminFiltersStore } from "@/store/admin-filters";
 import { convertCommentsToCsv } from "@/lib/csv";
 import type { CommentSubmission } from "@/lib/types";
@@ -37,6 +38,11 @@ function getRegionLabel(item: CommentSubmission) {
 }
 
 export function CommentsTable({ comments }: Props) {
+  const router = useRouter();
+  const [rows, setRows] = useState(comments);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [pendingActionId, setPendingActionId] = useState<string | null>(null);
+  const [isRefreshing, startTransition] = useTransition();
   const query = useAdminFiltersStore((state) => state.query);
   const dateFrom = useAdminFiltersStore((state) => state.dateFrom);
   const dateTo = useAdminFiltersStore((state) => state.dateTo);
@@ -53,23 +59,17 @@ export function CommentsTable({ comments }: Props) {
   const deferredQuery = useDeferredValue(query);
 
   const duplicatePhoneSet = new Set(
-    comments
+    rows
       .map((item) => item.phone)
       .filter((phone, _, array) => array.filter((candidate) => candidate === phone).length > 1)
   );
 
-  const regions = [
-    ...new Set(comments.map(getRegionLabel).filter((item): item is string => Boolean(item)))
-  ].sort();
+  const regions = [...new Set(rows.map(getRegionLabel).filter((item): item is string => Boolean(item)))].sort();
   const timezones = [
-    ...new Set(
-      comments
-        .map((item) => item.timezone)
-        .filter((item): item is string => Boolean(item))
-    )
+    ...new Set(rows.map((item) => item.timezone).filter((item): item is string => Boolean(item)))
   ].sort();
 
-  const filteredComments = comments.filter((item) => {
+  const filteredComments = rows.filter((item) => {
     const target =
       `${item.nickname} ${item.name} ${item.phone} ${item.message} ${item.ip_address ?? ""} ${item.region ?? ""} ${item.city ?? ""} ${item.timezone ?? ""}`.toLowerCase();
     const itemDate = item.created_at.slice(0, 10);
@@ -90,6 +90,85 @@ export function CommentsTable({ comments }: Props) {
     );
   });
 
+  async function handleHiddenToggle(item: CommentSubmission) {
+    setFeedback(null);
+    setPendingActionId(item.id);
+
+    try {
+      const response = await fetch(`/api/admin/comments/${item.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          hidden: !item.hidden
+        })
+      });
+      const result = (await response.json()) as {
+        hidden?: boolean;
+        message?: string;
+      };
+
+      if (!response.ok || typeof result.hidden !== "boolean") {
+        throw new Error(result.message ?? "댓글 가리기 설정에 실패했습니다.");
+      }
+
+      const nextHidden = result.hidden;
+
+      setRows((current) =>
+        current.map((row) =>
+          row.id === item.id
+            ? {
+                ...row,
+                hidden: nextHidden
+              }
+            : row
+        )
+      );
+      startTransition(() => {
+        router.refresh();
+      });
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : "댓글 가리기 설정에 실패했습니다.");
+    } finally {
+      setPendingActionId(null);
+    }
+  }
+
+  async function handleDelete(item: CommentSubmission) {
+    const confirmed = window.confirm(
+      `${item.nickname} 댓글을 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.`
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    setFeedback(null);
+    setPendingActionId(item.id);
+
+    try {
+      const response = await fetch(`/api/admin/comments/${item.id}`, {
+        method: "DELETE"
+      });
+      const result = (await response.json()) as {
+        message?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(result.message ?? "댓글 삭제에 실패했습니다.");
+      }
+
+      setRows((current) => current.filter((row) => row.id !== item.id));
+      startTransition(() => {
+        router.refresh();
+      });
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : "댓글 삭제에 실패했습니다.");
+    } finally {
+      setPendingActionId(null);
+    }
+  }
+
   return (
     <Card className="border-brand/10">
       <CardHeader className="pb-3">
@@ -98,8 +177,7 @@ export function CommentsTable({ comments }: Props) {
             <div>
               <CardTitle>참여 데이터 원본</CardTitle>
               <CardDescription className="mt-1">
-                검색어, 날짜, 지역, 시간대, 중복 연락처 필터를 조합해 운영 이슈를 바로
-                확인할 수 있습니다.
+                검색어, 날짜, 지역, 시간대, 중복 연락처 필터를 조합해 운영 데이터를 바로 확인할 수 있습니다.
               </CardDescription>
             </div>
             <div className="flex gap-2">
@@ -172,6 +250,12 @@ export function CommentsTable({ comments }: Props) {
             />
             중복 연락처만 보기
           </label>
+
+          {feedback ? (
+            <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+              {feedback}
+            </div>
+          ) : null}
         </div>
       </CardHeader>
       <CardContent className="pt-0">
@@ -181,46 +265,90 @@ export function CommentsTable({ comments }: Props) {
               <TableRow>
                 <TableHead>등록일시</TableHead>
                 <TableHead>닉네임</TableHead>
+                <TableHead>상태</TableHead>
                 <TableHead>이름</TableHead>
                 <TableHead>연락처</TableHead>
+                <TableHead className="text-right">좋아요</TableHead>
                 <TableHead>메시지</TableHead>
                 <TableHead>IP / 지역</TableHead>
                 <TableHead>시간대</TableHead>
+                <TableHead className="text-right">관리</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredComments.length ? (
-                filteredComments.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="text-black/55">
-                      {new Intl.DateTimeFormat("ko-KR", {
-                        dateStyle: "short",
-                        timeStyle: "short"
-                      }).format(new Date(item.created_at))}
-                    </TableCell>
-                    <TableCell className="font-medium">{item.nickname}</TableCell>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>
-                      <div>{item.phone}</div>
-                      {duplicatePhoneSet.has(item.phone) ? (
-                        <div className="text-xs font-medium text-brand">중복 연락처</div>
-                      ) : null}
-                    </TableCell>
-                    <TableCell className="max-w-[320px] whitespace-pre-wrap text-black/70">
-                      {item.message}
-                    </TableCell>
-                    <TableCell className="text-black/65">
-                      <div>{item.ip_address ?? "-"}</div>
-                      <div className="text-xs text-black/45">
-                        {getRegionLabel(item) || "지역 정보 없음"}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-black/65">{item.timezone ?? "-"}</TableCell>
-                  </TableRow>
-                ))
+                filteredComments.map((item) => {
+                  const isPending = pendingActionId === item.id || isRefreshing;
+
+                  return (
+                    <TableRow key={item.id} className={item.hidden ? "bg-black/[0.03]" : undefined}>
+                      <TableCell className="text-black/55">
+                        {new Intl.DateTimeFormat("ko-KR", {
+                          dateStyle: "short",
+                          timeStyle: "short"
+                        }).format(new Date(item.created_at))}
+                      </TableCell>
+                      <TableCell className="font-medium">{item.nickname}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
+                            item.hidden
+                              ? "bg-amber-100 text-amber-800"
+                              : "bg-emerald-100 text-emerald-700"
+                          }`}
+                        >
+                          {item.hidden ? "가림" : "노출"}
+                        </span>
+                      </TableCell>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell>
+                        <div>{item.phone}</div>
+                        {duplicatePhoneSet.has(item.phone) ? (
+                          <div className="text-xs font-medium text-brand">중복 연락처</div>
+                        ) : null}
+                      </TableCell>
+                      <TableCell className="text-right font-semibold text-brand">
+                        {item.like_count}
+                      </TableCell>
+                      <TableCell className="max-w-[320px] whitespace-pre-wrap text-black/70">
+                        {item.message}
+                      </TableCell>
+                      <TableCell className="text-black/65">
+                        <div>{item.ip_address ?? "-"}</div>
+                        <div className="text-xs text-black/45">
+                          {getRegionLabel(item) || "지역 정보 없음"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-black/65">{item.timezone ?? "-"}</TableCell>
+                      <TableCell>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            disabled={isPending}
+                            onClick={() => handleHiddenToggle(item)}
+                          >
+                            {item.hidden ? "숨김 해제" : "가리기"}
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="border-rose-200 text-rose-700 hover:bg-rose-50"
+                            disabled={isPending}
+                            onClick={() => handleDelete(item)}
+                          >
+                            {pendingActionId === item.id ? "처리 중..." : "삭제"}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-10 text-center text-black/45">
+                  <TableCell colSpan={10} className="py-10 text-center text-black/45">
                     조회 결과가 없습니다.
                   </TableCell>
                 </TableRow>

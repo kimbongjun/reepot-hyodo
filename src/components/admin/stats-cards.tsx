@@ -9,8 +9,16 @@ export function StatsCards({ stats }: Props) {
   const cards = [
     { label: "전체 참여", value: `${stats.totalCount}건` },
     { label: "오늘 참여", value: `${stats.todayCount}건` },
+    { label: "총 좋아요", value: `${stats.totalLikes}회` },
+    { label: "댓글당 평균 좋아요", value: `${stats.averageLikes}회` },
     { label: "고유 연락처", value: `${stats.uniquePhones}명` },
     { label: "고유 IP", value: `${stats.uniqueIps}개` },
+    {
+      label: "최다 좋아요 댓글",
+      value: stats.topLikedComment
+        ? `${stats.topLikedComment.nickname} · ${stats.topLikedComment.likeCount}회`
+        : "-"
+    },
     { label: "최다 지역", value: stats.topRegion },
     { label: "최다 시간대", value: stats.topTimezone }
   ];

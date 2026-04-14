@@ -7,6 +7,7 @@ create table if not exists public.comment_submissions (
   phone text not null,
   message text not null,
   like_count integer not null default 0,
+  hidden boolean not null default false,
   ip_address text,
   country text,
   region text,
@@ -23,16 +24,19 @@ alter table public.comment_submissions add column if not exists city text;
 alter table public.comment_submissions add column if not exists timezone text;
 alter table public.comment_submissions add column if not exists user_agent text;
 alter table public.comment_submissions add column if not exists like_count integer not null default 0;
+alter table public.comment_submissions add column if not exists hidden boolean not null default false;
 
 create table if not exists public.public_comments (
   id uuid primary key,
   nickname text not null,
   message text not null,
   like_count integer not null default 0,
+  hidden boolean not null default false,
   created_at timestamptz not null default now()
 );
 
 alter table public.public_comments add column if not exists like_count integer not null default 0;
+alter table public.public_comments add column if not exists hidden boolean not null default false;
 
 create table if not exists public.site_settings (
   setting_key text primary key,
@@ -46,8 +50,8 @@ language plpgsql
 security definer
 as $$
 begin
-  insert into public.public_comments (id, nickname, message, like_count, created_at)
-  values (new.id, new.nickname, new.message, new.like_count, new.created_at);
+  insert into public.public_comments (id, nickname, message, like_count, hidden, created_at)
+  values (new.id, new.nickname, new.message, new.like_count, new.hidden, new.created_at);
 
   return new;
 end;

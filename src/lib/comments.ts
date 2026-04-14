@@ -57,7 +57,7 @@ export function validateCommentInput(input: CommentFormInput) {
   const phone = input.phone.replace(/\D/g, "");
 
   if (!input.nickname.trim() || !input.name.trim() || !input.message.trim()) {
-    return "닉네임, 이름, 메시지는 모두 입력해야 합니다.";
+    return "닉네임, 이름, 메시지를 모두 입력해야 합니다.";
   }
 
   if (phone.length < 10 || phone.length > 11) {
@@ -77,7 +77,8 @@ export async function getPublicComments(limit = 50): Promise<PublicComment[]> {
 
   const { data, error } = await supabase
     .from(PUBLIC_TABLE)
-    .select("id,nickname,message,like_count,created_at")
+    .select("id,nickname,message,like_count,hidden,created_at")
+    .eq("hidden", false)
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -92,7 +93,7 @@ export async function getAdminComments(limit = 500): Promise<CommentSubmission[]
   const { data, error } = await supabase
     .from(ADMIN_TABLE)
     .select(
-      "id,nickname,name,phone,message,like_count,created_at,ip_address,country,region,city,timezone,user_agent"
+      "id,nickname,name,phone,message,like_count,hidden,created_at,ip_address,country,region,city,timezone,user_agent"
     )
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -127,6 +128,7 @@ export async function createCommentSubmission(
     phone: input.phone.replace(/\D/g, ""),
     message: input.message.trim(),
     like_count: 0,
+    hidden: false,
     ...meta
   };
 
@@ -162,11 +164,59 @@ export async function incrementCommentLike(commentId: string) {
   return data as number;
 }
 
+export async function updateCommentHidden(commentId: string, hidden: boolean) {
+  const supabase = createServiceSupabaseClient();
+  if (!supabase) {
+    throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
+  }
+
+  const { error: publicError } = await supabase
+    .from(PUBLIC_TABLE)
+    .update({ hidden })
+    .eq("id", commentId);
+  if (publicError) {
+    throw publicError;
+  }
+
+  const { error: adminError } = await supabase
+    .from(ADMIN_TABLE)
+    .update({ hidden })
+    .eq("id", commentId);
+  if (adminError) {
+    throw adminError;
+  }
+}
+
+export async function deleteCommentSubmission(commentId: string) {
+  const supabase = createServiceSupabaseClient();
+  if (!supabase) {
+    throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
+  }
+
+  const { error: publicError } = await supabase.from(PUBLIC_TABLE).delete().eq("id", commentId);
+  if (publicError) {
+    throw publicError;
+  }
+
+  const { error: adminError } = await supabase.from(ADMIN_TABLE).delete().eq("id", commentId);
+  if (adminError) {
+    throw adminError;
+  }
+}
+
 export function buildDashboardStats(items: CommentSubmission[]): DashboardStats {
   const formatter = new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Asia/Seoul"
   });
   const todayKey = formatter.format(new Date());
+  const totalLikes = items.reduce((sum, item) => sum + item.like_count, 0);
+  const topLikedItem = items.reduce<CommentSubmission | null>((currentTop, item) => {
+    if (!currentTop || item.like_count > currentTop.like_count) {
+      return item;
+    }
+
+    return currentTop;
+  }, null);
 
   const todayCount = items.filter(
     (item) => formatter.format(new Date(item.created_at)) === todayKey
@@ -176,9 +226,17 @@ export function buildDashboardStats(items: CommentSubmission[]): DashboardStats 
   return {
     totalCount: items.length,
     todayCount,
+    totalLikes,
+    averageLikes: items.length ? Number((totalLikes / items.length).toFixed(1)) : 0,
     uniquePhones: new Set(items.map((item) => item.phone)).size,
     uniqueIps,
     latestEntryAt: items[0]?.created_at ?? null,
+    topLikedComment: topLikedItem
+      ? {
+          nickname: topLikedItem.nickname,
+          likeCount: topLikedItem.like_count
+        }
+      : null,
     topRegion: getMostFrequentLabel(
       items,
       (item) => [item.country, item.region, item.city].filter(Boolean).join(" / "),
@@ -228,6 +286,7 @@ export function sanitizeRealtimeComment(row: Partial<CommentSubmission>): Public
     nickname: row.nickname ?? "익명",
     message: row.message ?? "",
     like_count: row.like_count ?? 0,
+    hidden: row.hidden ?? false,
     created_at: row.created_at ?? new Date().toISOString()
   };
 }

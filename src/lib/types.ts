@@ -3,6 +3,7 @@ export type PublicComment = {
   nickname: string;
   message: string;
   like_count: number;
+  hidden: boolean;
   created_at: string;
 };
 
@@ -36,9 +37,15 @@ export type CommentRequestMeta = {
 export type DashboardStats = {
   totalCount: number;
   todayCount: number;
+  totalLikes: number;
+  averageLikes: number;
   uniquePhones: number;
   uniqueIps: number;
   latestEntryAt: string | null;
+  topLikedComment: {
+    nickname: string;
+    likeCount: number;
+  } | null;
   topRegion: string;
   topTimezone: string;
 };
