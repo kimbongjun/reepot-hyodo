@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminUser } from "@/lib/admin-auth";
-import { getSiteSettings, updateYoutubeUrl } from "@/lib/site-settings";
+import { getSiteSettings, updateSiteSettings } from "@/lib/site-settings";
+import type { SiteSettings } from "@/lib/types";
 
 export async function GET() {
   const user = await getAdminUser();
@@ -19,11 +20,11 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as {
-    youtubeUrl?: string | null;
+    settings?: Partial<SiteSettings>;
   };
 
   try {
-    const settings = await updateYoutubeUrl(body.youtubeUrl ?? null);
+    const settings = await updateSiteSettings(body.settings ?? {});
     return NextResponse.json(settings);
   } catch (error) {
     return NextResponse.json(

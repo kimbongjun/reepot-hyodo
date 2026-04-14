@@ -9,7 +9,13 @@ const initialForm = {
   message: ""
 };
 
-export function CommentForm() {
+type Props = {
+  title: string;
+  description: string;
+  submitLabel: string;
+};
+
+export function CommentForm({ title, description, submitLabel }: Props) {
   const [form, setForm] = useState(initialForm);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -50,11 +56,9 @@ export function CommentForm() {
     >
       <div className="space-y-2">
         <h2 className="font-[var(--font-display)] text-2xl font-black tracking-[-0.03em] text-black">
-          실시간 참여 등록
+          {title}
         </h2>
-        <p className="text-sm leading-6 text-black/60">
-          MBN 동치미 영상 시청 후 참여 정보를 작성해 주세요.
-        </p>
+        <p className="whitespace-pre-wrap text-sm leading-6 text-black/60">{description}</p>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
@@ -109,7 +113,7 @@ export function CommentForm() {
         disabled={isPending}
         className="inline-flex w-full items-center justify-center rounded-2xl bg-brand px-5 py-3.5 text-sm font-bold text-white transition hover:bg-[#24304f] disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isPending ? "등록 중..." : "참여 내용 등록하기"}
+        {isPending ? "등록 중..." : submitLabel}
       </button>
 
       {feedback ? (

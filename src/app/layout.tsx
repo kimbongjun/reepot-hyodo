@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Reepot Event Landing",
+  title: "리팟 효도 캠페인",
   description: "실시간 참여형 이벤트 랜딩 페이지와 관리자 운영 화면"
 };
 

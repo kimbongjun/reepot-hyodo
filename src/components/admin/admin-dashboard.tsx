@@ -73,7 +73,7 @@ export function AdminDashboard({
       ) : null}
 
       <StatsCards stats={stats} />
-      <YoutubeSettingsCard initialYoutubeUrl={settings.youtubeUrl} />
+      <YoutubeSettingsCard initialSettings={settings} />
 
       <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr_1fr]">
         <HourlyChart items={analytics.hourly} />

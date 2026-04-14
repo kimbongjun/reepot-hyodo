@@ -2,7 +2,12 @@ import Image from "next/image";
 import reepotLogo from "@/imgs/reepot_BI_H.svg";
 import classysLogo from "@/imgs/classys_logo.svg";
 
-export function HeroSection() {
+type Props = {
+  title: string;
+  description: string;
+};
+
+export function HeroSection({ title, description }: Props) {
   return (
     <section className="relative overflow-hidden rounded-[2rem] border border-brand/10 bg-white/80 p-6 shadow-panel backdrop-blur md:p-10">
       <div className="absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_top_right,rgba(141,215,247,0.55),transparent_38%)]" />
@@ -22,20 +27,16 @@ export function HeroSection() {
                 />
               </div>
               <div className="rounded-[1.25rem] border border-brand/12 bg-[#f4fbff] px-4 py-3">
-                <Image
-                  src={classysLogo}
-                  alt="Classys 로고"
-                  className="h-7 w-auto md:h-8"
-                />
+                <Image src={classysLogo} alt="Classys 로고" className="h-7 w-auto md:h-8" />
               </div>
             </div>
 
             <h1 className="max-w-3xl font-[var(--font-display)] text-4xl font-black leading-[1.15] tracking-[-0.04em] text-black md:text-6xl">
-              리팟 효도 캠페인 이벤트
+              {title}
             </h1>
 
-            <p className="max-w-2xl text-base leading-7 text-black/65 md:text-lg">
-              MBN 동치미 본방송 시청 인증 이벤트
+            <p className="max-w-2xl whitespace-pre-wrap text-base leading-7 text-black/65 md:text-lg">
+              {description}
             </p>
           </div>
         </div>

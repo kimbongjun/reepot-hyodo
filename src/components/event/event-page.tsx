@@ -1,4 +1,4 @@
-import type { PublicComment } from "@/lib/types";
+import type { PublicComment, SiteSettings } from "@/lib/types";
 import { HeroSection } from "./hero-section";
 import { BenefitsSection } from "./benefits-section";
 import { CommentForm } from "./comment-form";
@@ -8,29 +8,57 @@ import { YoutubeSection } from "./youtube-section";
 type Props = {
   initialComments: PublicComment[];
   isReady: boolean;
-  youtubeUrl: string | null;
+  settings: SiteSettings;
 };
 
-export function EventPage({ initialComments, isReady, youtubeUrl }: Props) {
+export function EventPage({ initialComments, isReady, settings }: Props) {
   return (
     <main className="grain">
       <div className="mx-auto flex min-h-screen max-w-7xl flex-col gap-8 px-4 py-6 md:px-8 md:py-10">
         {!isReady ? (
           <div className="rounded-[1.5rem] border border-brand/15 bg-sky/25 px-5 py-4 text-sm font-medium leading-6 text-black/75">
-            `.env.local`에 Supabase 값을 넣고 `supabase/schema.sql`을 반영하면 실시간
-            댓글과 관리자 수집 기능까지 모두 동작합니다.
+            {settings.eventNotice}
           </div>
         ) : null}
 
-        <HeroSection />
-        <YoutubeSection youtubeUrl={youtubeUrl} />
+        <HeroSection title={settings.heroTitle} description={settings.heroDescription} />
+
+        <YoutubeSection
+          title={settings.youtubeTitle}
+          emptyMessage={settings.youtubeEmptyMessage}
+          youtubeUrl={settings.youtubeUrl}
+        />
 
         <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-          <CommentForm />
-          <CommentFeed initialComments={initialComments} />
+          <CommentForm
+            title={settings.commentFormTitle}
+            description={settings.commentFormDescription}
+            submitLabel={settings.commentFormSubmitLabel}
+          />
+          <CommentFeed
+            initialComments={initialComments}
+            title={settings.commentFeedTitle}
+            emptyMessage={settings.commentFeedEmptyMessage}
+          />
         </div>
 
-        <BenefitsSection />
+        <BenefitsSection
+          title={settings.benefitsTitle}
+          items={[
+            {
+              title: settings.benefit1Title,
+              description: settings.benefit1Description
+            },
+            {
+              title: settings.benefit2Title,
+              description: settings.benefit2Description
+            },
+            {
+              title: settings.benefit3Title,
+              description: settings.benefit3Description
+            }
+          ]}
+        />
       </div>
     </main>
   );

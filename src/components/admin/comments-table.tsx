@@ -37,6 +37,8 @@ function getRegionLabel(item: CommentSubmission) {
   return [item.country, item.region, item.city].filter(Boolean).join(" / ");
 }
 
+const DISPLAY_TIME_ZONE = "Asia/Seoul";
+
 export function CommentsTable({ comments }: Props) {
   const router = useRouter();
   const [rows, setRows] = useState(comments);
@@ -285,7 +287,8 @@ export function CommentsTable({ comments }: Props) {
                       <TableCell className="text-black/55">
                         {new Intl.DateTimeFormat("ko-KR", {
                           dateStyle: "short",
-                          timeStyle: "short"
+                          timeStyle: "short",
+                          timeZone: DISPLAY_TIME_ZONE
                         }).format(new Date(item.created_at))}
                       </TableCell>
                       <TableCell className="font-medium">{item.nickname}</TableCell>

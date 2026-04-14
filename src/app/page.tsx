@@ -13,7 +13,7 @@ export default async function HomePage() {
     <EventPage
       initialComments={comments}
       isReady={hasServiceSupabaseEnv}
-      youtubeUrl={settings.youtubeUrl}
+      settings={settings}
     />
   );
 }

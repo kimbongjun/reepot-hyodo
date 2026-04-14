@@ -8,11 +8,14 @@ import type { PublicComment } from "@/lib/types";
 
 type Props = {
   initialComments: PublicComment[];
+  title: string;
+  emptyMessage: string;
 };
 
 const MAX_VISIBLE_COMMENTS = 5;
+const DISPLAY_TIME_ZONE = "Asia/Seoul";
 
-export function CommentFeed({ initialComments }: Props) {
+export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
   const [comments, setComments] = useState(initialComments.filter((item) => !item.hidden));
   const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -145,10 +148,7 @@ export function CommentFeed({ initialComments }: Props) {
         },
         (payload) => {
           const nextItem = sanitizeRealtimeComment(payload.new);
-          const previousItem = sanitizeRealtimeComment(payload.old ?? {});
-          upsertComment(nextItem, {
-            focus: !nextItem.hidden && nextItem.created_at !== previousItem.created_at
-          });
+          upsertComment(nextItem);
         }
       )
       .subscribe();
@@ -164,9 +164,12 @@ export function CommentFeed({ initialComments }: Props) {
       className="rounded-[1.8rem] border border-brand/10 bg-[linear-gradient(180deg,#2d3b64_0%,#3d4d7a_100%)] p-6 text-white shadow-panel"
     >
       <div className="flex items-end justify-between gap-4">
-        <div>          
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-white/65">
+            Live Comments
+          </p>
           <h2 className="mt-2 font-[var(--font-display)] text-2xl font-black tracking-[-0.03em]">
-            방금 등록된 참여 메시지
+            {title}
           </h2>
         </div>
         <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white/80">
@@ -195,7 +198,9 @@ export function CommentFeed({ initialComments }: Props) {
                 ref={(node) => {
                   articleRefs.current[comment.id] = node;
                 }}
-                className={`rounded-[1.4rem] border border-white/12 bg-white/10 p-4 backdrop-blur transition`}
+                className={`rounded-[1.4rem] border border-white/12 bg-white/10 p-4 backdrop-blur transition ${
+                  focusedCommentId === comment.id ? "ring-2 ring-sky/60" : ""
+                }`}
                 style={
                   index < MAX_VISIBLE_COMMENTS
                     ? undefined
@@ -209,14 +214,16 @@ export function CommentFeed({ initialComments }: Props) {
                   <time className="text-xs text-white/60">
                     {new Intl.DateTimeFormat("ko-KR", {
                       dateStyle: "short",
-                      timeStyle: "short"
+                      timeStyle: "short",
+                      timeZone: DISPLAY_TIME_ZONE
                     }).format(new Date(comment.created_at))}
                   </time>
                 </div>
                 <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/88">
                   {comment.message}
                 </p>
-                <div className="mt-4 flex items-center justify-between gap-3">                  
+                <div className="mt-4 flex items-center justify-between gap-3">
+                  <span className="text-xs text-white/55">응원 메시지에 좋아요를 눌러 주세요.</span>
                   <button
                     type="button"
                     onClick={() => handleLike(comment.id)}
@@ -236,7 +243,7 @@ export function CommentFeed({ initialComments }: Props) {
           </div>
         ) : (
           <div className="rounded-[1.4rem] border border-dashed border-white/20 bg-white/5 p-8 text-center text-sm text-white/70">
-            아직 등록된 메시지가 없습니다. 첫 참여 메시지를 남겨 보세요.
+            {emptyMessage}
           </div>
         )}
       </div>
