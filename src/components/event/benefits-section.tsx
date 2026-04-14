@@ -21,7 +21,7 @@ export function BenefitsSection() {
     <section id="benefits" className="space-y-6">
       <div className="space-y-3">
         <h2 className="font-[var(--font-display)] text-3xl font-black tracking-[-0.03em] text-black md:text-4xl">
-          이벤트 참여 특장점
+          이벤트 참여 혜택
         </h2>
       </div>
 
