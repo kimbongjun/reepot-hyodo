@@ -3,6 +3,9 @@ import { createCommentSubmission, getPublicComments } from "@/lib/comments";
 import { getCommentRequestMeta } from "@/lib/request-meta";
 import type { CommentFormInput } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   const comments = await getPublicComments();
   return NextResponse.json(comments);
