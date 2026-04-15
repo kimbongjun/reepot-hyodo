@@ -1,13 +1,9 @@
 import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
 import { createClient as createServerAuthClient } from "@/lib/server";
+import { parseAdminEmails } from "@/lib/admin-emails";
 
-function parseAdminEmails() {
-  return (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((value) => value.trim().toLowerCase())
-    .filter(Boolean);
-}
+export { parseAdminEmails };
 
 export function isAllowedAdminEmail(email: string | null | undefined) {
   if (!email) return false;

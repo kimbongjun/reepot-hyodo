@@ -53,19 +53,39 @@ function getMostFrequentLabel(
   return buildTopBuckets(items, pick, fallback, 1)[0]?.label ?? fallback;
 }
 
+const NICKNAME_MAX_LENGTH = 30;
+const NAME_MAX_LENGTH = 20;
+const MESSAGE_MIN_LENGTH = 2;
+const MESSAGE_MAX_LENGTH = 500;
+
 export function validateCommentInput(input: CommentFormInput) {
   const phone = input.phone.replace(/\D/g, "");
+  const nickname = input.nickname.trim();
+  const name = input.name.trim();
+  const message = input.message.trim();
 
-  if (!input.nickname.trim() || !input.name.trim() || !input.message.trim()) {
+  if (!nickname || !name || !message) {
     return "닉네임, 이름, 메시지를 모두 입력해야 합니다.";
+  }
+
+  if (nickname.length > NICKNAME_MAX_LENGTH) {
+    return `닉네임은 ${NICKNAME_MAX_LENGTH}자 이하로 입력해 주세요.`;
+  }
+
+  if (name.length > NAME_MAX_LENGTH) {
+    return `이름은 ${NAME_MAX_LENGTH}자 이하로 입력해 주세요.`;
   }
 
   if (phone.length < 10 || phone.length > 11) {
     return "연락처 형식이 올바르지 않습니다.";
   }
 
-  if (input.message.trim().length < 2) {
-    return "메시지는 2자 이상 입력해 주세요.";
+  if (message.length < MESSAGE_MIN_LENGTH) {
+    return `메시지는 ${MESSAGE_MIN_LENGTH}자 이상 입력해 주세요.`;
+  }
+
+  if (message.length > MESSAGE_MAX_LENGTH) {
+    return `메시지는 ${MESSAGE_MAX_LENGTH}자 이하로 입력해 주세요.`;
   }
 
   return null;
@@ -161,7 +181,11 @@ export async function incrementCommentLike(commentId: string) {
     throw error;
   }
 
-  return data as number;
+  if (typeof data !== "number") {
+    throw new Error("좋아요 수를 읽을 수 없습니다.");
+  }
+
+  return data;
 }
 
 export async function updateCommentHidden(commentId: string, hidden: boolean) {

@@ -1,7 +1,12 @@
 import type { CommentSubmission } from "@/lib/types";
 
+const FORMULA_PREFIXES = ["=", "+", "-", "@", "\t", "\r"];
+
 function escapeCell(value: string) {
-  return `"${value.replace(/"/g, '""')}"`;
+  const sanitized = FORMULA_PREFIXES.some((prefix) => value.startsWith(prefix))
+    ? `'${value}`
+    : value;
+  return `"${sanitized.replace(/"/g, '""')}"`;
 }
 
 export function convertCommentsToCsv(items: CommentSubmission[]) {
