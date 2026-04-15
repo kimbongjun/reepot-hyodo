@@ -4,6 +4,7 @@ import { BenefitsSection } from "./benefits-section";
 import { CommentForm } from "./comment-form";
 import { CommentFeed } from "./comment-feed";
 import { YoutubeSection } from "./youtube-section";
+import { FooterSection } from "./footer-section";
 
 type Props = {
   initialComments: PublicComment[];
@@ -60,6 +61,7 @@ export function EventPage({ initialComments, isReady, settings }: Props) {
           ]}
         />
       </div>
+      <FooterSection title="COPYRIGHT Ⓒ 2024 CLASSYS ALL RIGHTS RESERVED."/>
     </main>
   );
 }
