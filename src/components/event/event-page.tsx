@@ -1,6 +1,7 @@
 import type { PublicComment, SiteSettings } from "@/lib/types";
 import { HeroSection } from "./hero-section";
 import { BenefitsSection } from "./benefits-section";
+import { FooterSection } from "./footer-section";
 import { CommentForm } from "./comment-form";
 import { CommentFeed } from "./comment-feed";
 import { YoutubeSection } from "./youtube-section";
@@ -58,8 +59,9 @@ export function EventPage({ initialComments, isReady, settings }: Props) {
               description: settings.benefit3Description
             }
           ]}
-        />
+        />               
       </div>
+      <FooterSection title="COPYRIGHT Ⓒ 2026 CLASSYS ALL RIGHTS RESERVED." />
     </main>
   );
 }
