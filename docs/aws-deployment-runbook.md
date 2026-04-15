@@ -16,7 +16,6 @@
 
 - 소스 중앙 관리: GitHub
 - 웹 배포: AWS Amplify Hosting
-- 정적 자산 및 백업 보관: Amazon S3
 - DNS: Amazon Route 53
 - SSL: Amplify 관리 인증서 또는 ACM 관리 인증서
 
@@ -80,26 +79,9 @@ Amplify에는 최소 아래 두 브랜치에 모두 설정합니다.
 - `staging`으로 병합 후 Amplify 사전 검증
 - 검증 완료 후 `main` 병합 및 운영 배포
 
-## 6. S3 운영 방식
+## 6. Amplify 배포 절차
 
-S3는 이 프로젝트에서 "메인 웹 호스팅"이 아니라 "자산 및 백업 저장소" 용도로 유지하는 것이 맞습니다.
-
-권장 버킷 예시:
-
-- `reepot-campaign-assets-prod`
-- `reepot-campaign-backup-prod`
-- `reepot-campaign-build-archive-prod`
-
-권장 사용처:
-
-- 이미지/첨부 파일 저장
-- 배포 산출물 백업
-- CSV export 백업
-- 운영 시점 아카이브 보관
-
-## 7. Amplify 배포 절차
-
-### 7.1 Amplify 앱 생성
+### 6.1 Amplify 앱 생성
 
 1. AWS Console에 접속합니다.
 2. Amplify 서비스로 이동합니다.
@@ -108,7 +90,7 @@ S3는 이 프로젝트에서 "메인 웹 호스팅"이 아니라 "자산 및 백
 5. 현재 저장소를 연결합니다.
 6. 첫 배포 브랜치는 `staging`으로 선택합니다.
 
-### 7.2 빌드 설정
+### 6.2 빌드 설정
 
 자동 감지가 충분하지 않으면 루트의 `amplify.yml`을 사용합니다.
 
@@ -131,7 +113,7 @@ frontend:
       - node_modules/**/*
 ```
 
-### 7.3 Amplify 환경변수 등록
+### 6.3 Amplify 환경변수 등록
 
 Amplify Console에 아래 값을 등록합니다.
 
@@ -140,7 +122,7 @@ Amplify Console에 아래 값을 등록합니다.
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `ADMIN_EMAILS`
 
-### 7.4 첫 배포에서 확인할 항목
+### 6.4 첫 배포에서 확인할 항목
 
 - 빌드 성공 여부
 - Next.js 버전 호환 오류 여부
@@ -149,7 +131,7 @@ Amplify Console에 아래 값을 등록합니다.
 - Supabase 읽기/쓰기 정상 여부
 - 세션 쿠키 및 리다이렉트 정상 여부
 
-## 8. Route 53 서브도메인 연결
+## 7. Route 53 서브도메인 연결
 
 목표 도메인:
 
@@ -168,7 +150,7 @@ Amplify Console에 아래 값을 등록합니다.
 
 - `staging-campaign.reepot.com` -> `staging`
 
-## 9. SSL 전략
+## 8. SSL 전략
 
 현재 아키텍처에서 맞는 방식:
 
@@ -187,7 +169,7 @@ Amplify Console에 아래 값을 등록합니다.
 
 이 방식들은 관리형 호스팅과 구조적으로 맞지 않습니다.
 
-## 10. staging 배포 검증 체크리스트
+## 9. staging 배포 검증 체크리스트
 
 1. 메인 페이지 접속
 2. 댓글 등록
@@ -202,14 +184,14 @@ Amplify Console에 아래 값을 등록합니다.
 11. CSV export 기능 사용 시 다운로드 확인
 12. 권한 없는 사용자 차단 확인
 
-## 11. 운영 도메인 연결 후 체크리스트
+## 10. 운영 도메인 연결 후 체크리스트
 
 1. `https://campaign.reepot.com` 접속
 2. 인증서 정상 여부 확인
 3. Mixed Content, 쿠키, 리다이렉트 문제 확인
 4. staging 체크리스트 전체 재실행
 
-## 12. 롤백 계획
+## 11. 롤백 계획
 
 운영 배포 실패 시:
 
@@ -218,14 +200,14 @@ Amplify Console에 아래 값을 등록합니다.
 3. 버전 호환 이슈라면 운영은 기존 버전으로 유지하고 수정은 `staging`에서 재검증합니다.
 4. `staging` 통과 후에만 운영 재배포합니다.
 
-## 13. 운영 메모
+## 12. 운영 메모
 
 - Route 53 전파에는 시간이 걸릴 수 있습니다.
 - 관리형 인증서 발급에도 일정 시간이 필요할 수 있습니다.
 - 첫 운영 배포 후 CloudWatch에서 SSR/API 런타임 오류를 확인하는 것이 좋습니다.
-- S3는 메인 런타임이 아니라 자산/백업 저장소로 유지하는 편이 맞습니다.
+- 배포 구조는 `GitHub -> Amplify`로 단순화하는 것이 현재 프로젝트에 가장 적합합니다.
 
-## 14. 실제 권장 실행 순서
+## 13. 실제 권장 실행 순서
 
 1. `supabase/schema.sql` 적용 여부 확인
 2. `staging` 브랜치 생성
@@ -237,3 +219,15 @@ Amplify Console에 아래 값을 등록합니다.
 8. `campaign.reepot.com` 연결
 9. `main` 운영 배포 활성화
 10. 운영 검증 완료
+
+## 14. 최종 운영 구조 요약
+
+최종적으로 운영 구조는 아래처럼 가져갑니다.
+
+- 개발 및 형상관리: GitHub
+- 자동 배포: Amplify
+- 운영 도메인: `campaign.reepot.com`
+- DNS 관리: Route 53
+- SSL: Amplify 관리 인증서
+
+즉, 코드 변경 후 GitHub 브랜치에 push 하면 Amplify가 이를 받아 자동으로 빌드하고 배포하는 흐름으로 운영합니다.
