@@ -6,6 +6,7 @@ const initialForm = {
   nickname: "",
   name: "",
   phone: "",
+  hospital: "",
   message: ""
 };
 
@@ -84,7 +85,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
           />
         </label>
 
-        <label className="space-y-2 text-sm text-black md:col-span-2">
+        <label className="space-y-2 text-sm text-black">
           <span className="font-medium">연락처</span>
           <input
             required
@@ -92,6 +93,16 @@ export function CommentForm({ title, description, submitLabel }: Props) {
             onChange={(event) => updateField("phone", event.target.value)}
             className="w-full rounded-2xl border border-brand/12 bg-[#f7fbff] px-4 py-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
             placeholder="01012345678"
+          />
+        </label>
+
+        <label className="space-y-2 text-sm text-black">
+          <span className="font-medium">병원명</span>
+          <input
+            value={form.hospital}
+            onChange={(event) => updateField("hospital", event.target.value)}
+            className="w-full rounded-2xl border border-brand/12 bg-[#f7fbff] px-4 py-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
+            placeholder="소속 병원명"
           />
         </label>
 

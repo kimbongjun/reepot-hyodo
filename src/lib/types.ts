@@ -10,6 +10,7 @@ export type PublicComment = {
 export type CommentSubmission = PublicComment & {
   name: string;
   phone: string;
+  hospital: string | null;
   ip_address: string | null;
   country: string | null;
   region: string | null;
@@ -22,6 +23,7 @@ export type CommentFormInput = {
   nickname: string;
   name: string;
   phone: string;
+  hospital: string;
   message: string;
 };
 

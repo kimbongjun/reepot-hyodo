@@ -1,17 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { parseAdminEmails } from "@/lib/admin-emails";
 import {
   hasPublicSupabaseEnv,
   supabaseAnonKey,
   supabaseUrl
 } from "@/lib/supabase/env";
-
-function parseAdminEmails() {
-  return (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((value) => value.trim().toLowerCase())
-    .filter(Boolean);
-}
 
 export async function updateSession(request: NextRequest) {
   if (!hasPublicSupabaseEnv || !supabaseUrl || !supabaseAnonKey) {

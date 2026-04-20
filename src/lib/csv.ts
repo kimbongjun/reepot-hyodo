@@ -1,7 +1,12 @@
 import type { CommentSubmission } from "@/lib/types";
 
+const FORMULA_PREFIXES = ["=", "+", "-", "@", "\t", "\r"];
+
 function escapeCell(value: string) {
-  return `"${value.replace(/"/g, '""')}"`;
+  const sanitized = FORMULA_PREFIXES.some((prefix) => value.startsWith(prefix))
+    ? `'${value}`
+    : value;
+  return `"${sanitized.replace(/"/g, '""')}"`;
 }
 
 export function convertCommentsToCsv(items: CommentSubmission[]) {
@@ -10,6 +15,7 @@ export function convertCommentsToCsv(items: CommentSubmission[]) {
     "닉네임",
     "이름",
     "연락처",
+    "병원명",
     "메시지",
     "IP",
     "국가",
@@ -24,6 +30,7 @@ export function convertCommentsToCsv(items: CommentSubmission[]) {
     item.nickname,
     item.name,
     item.phone,
+    item.hospital ?? "",
     item.message,
     item.ip_address ?? "",
     item.country ?? "",
