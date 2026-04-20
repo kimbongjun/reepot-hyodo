@@ -100,6 +100,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
           <span className="font-medium">병원명</span>
           <input
             value={form.hospital}
+            required
             onChange={(event) => updateField("hospital", event.target.value)}
             className="w-full rounded-2xl border border-brand/12 bg-[#f7fbff] px-4 py-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
             placeholder="소속 병원명"
