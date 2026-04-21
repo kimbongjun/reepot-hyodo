@@ -19,7 +19,7 @@ export function HourlyChart({ items }: Props) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-12 items-end gap-2 md:grid-cols-24">
+        <div className="grid grid-cols-12 items-end gap-2 md:grid-cols-[repeat(24,minmax(0,1fr))]">
           {items.map((item) => (
             <div key={item.hour} className="flex flex-col items-center gap-2">
               <div className="flex h-40 items-end">

@@ -8,6 +8,8 @@ import { requireAdminUser } from "@/lib/admin-auth";
 import { getSiteSettings } from "@/lib/site-settings";
 import { hasServiceSupabaseEnv } from "@/lib/supabase/env";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPage() {
   const adminUser = await requireAdminUser();
   const [comments, settings] = await Promise.all([

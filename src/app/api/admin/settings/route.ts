@@ -1,17 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminUser } from "@/lib/admin-auth";
-import { getSiteSettings, updateSiteSettings } from "@/lib/site-settings";
+import { updateSiteSettings } from "@/lib/site-settings";
 import type { SiteSettings } from "@/lib/types";
-
-export async function GET() {
-  const user = await getAdminUser();
-  if (!user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
-  const settings = await getSiteSettings();
-  return NextResponse.json(settings);
-}
 
 export async function POST(request: Request) {
   const user = await getAdminUser();

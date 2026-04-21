@@ -67,6 +67,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
           <span className="font-medium">닉네임</span>
           <input
             required
+            maxLength={30}
             value={form.nickname}
             onChange={(event) => updateField("nickname", event.target.value)}
             className="w-full rounded-2xl border border-brand/12 bg-[#f7fbff] px-4 py-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
@@ -78,6 +79,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
           <span className="font-medium">이름</span>
           <input
             required
+            maxLength={20}
             value={form.name}
             onChange={(event) => updateField("name", event.target.value)}
             className="w-full rounded-2xl border border-brand/12 bg-[#f7fbff] px-4 py-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
@@ -89,6 +91,8 @@ export function CommentForm({ title, description, submitLabel }: Props) {
           <span className="font-medium">연락처</span>
           <input
             required
+            maxLength={11}
+            inputMode="tel"
             value={form.phone}
             onChange={(event) => updateField("phone", event.target.value)}
             className="w-full rounded-2xl border border-brand/12 bg-[#f7fbff] px-4 py-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
@@ -99,8 +103,8 @@ export function CommentForm({ title, description, submitLabel }: Props) {
         <label className="space-y-2 text-sm text-black">
           <span className="font-medium">병원명</span>
           <input
-            value={form.hospital}
             required
+            value={form.hospital}
             onChange={(event) => updateField("hospital", event.target.value)}
             className="w-full rounded-2xl border border-brand/12 bg-[#f7fbff] px-4 py-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
             placeholder="소속 병원명"
@@ -111,6 +115,8 @@ export function CommentForm({ title, description, submitLabel }: Props) {
           <span className="font-medium">메시지</span>
           <textarea
             required
+            minLength={2}
+            maxLength={500}
             value={form.message}
             onChange={(event) => updateField("message", event.target.value)}
             rows={5}

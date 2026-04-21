@@ -1,9 +1,6 @@
 import { redirect } from "next/navigation";
-import type { NextRequest } from "next/server";
 import { createClient as createServerAuthClient } from "@/lib/server";
 import { parseAdminEmails } from "@/lib/admin-emails";
-
-export { parseAdminEmails };
 
 export function isAllowedAdminEmail(email: string | null | undefined) {
   if (!email) return false;
@@ -41,11 +38,3 @@ export async function getAdminUser() {
   return user;
 }
 
-export async function isAuthorizedAdminRequest(request: NextRequest) {
-  const supabase = await createServerAuthClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  return Boolean(user && isAllowedAdminEmail(user.email));
-}

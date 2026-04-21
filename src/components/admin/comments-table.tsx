@@ -1,7 +1,8 @@
 "use client";
 
-import { useDeferredValue, useState, useTransition } from "react";
+import { useDeferredValue, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useShallow } from "zustand/react/shallow";
 import { useAdminFiltersStore } from "@/store/admin-filters";
 import { convertCommentsToCsv } from "@/lib/csv";
 import type { CommentSubmission } from "@/lib/types";
@@ -45,31 +46,39 @@ export function CommentsTable({ comments }: Props) {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
   const [isRefreshing, startTransition] = useTransition();
-  const query = useAdminFiltersStore((state) => state.query);
-  const dateFrom = useAdminFiltersStore((state) => state.dateFrom);
-  const dateTo = useAdminFiltersStore((state) => state.dateTo);
-  const region = useAdminFiltersStore((state) => state.region);
-  const timezone = useAdminFiltersStore((state) => state.timezone);
-  const onlyDuplicates = useAdminFiltersStore((state) => state.onlyDuplicates);
-  const setQuery = useAdminFiltersStore((state) => state.setQuery);
-  const setDateFrom = useAdminFiltersStore((state) => state.setDateFrom);
-  const setDateTo = useAdminFiltersStore((state) => state.setDateTo);
-  const setRegion = useAdminFiltersStore((state) => state.setRegion);
-  const setTimezone = useAdminFiltersStore((state) => state.setTimezone);
-  const setOnlyDuplicates = useAdminFiltersStore((state) => state.setOnlyDuplicates);
-  const resetFilters = useAdminFiltersStore((state) => state.resetFilters);
+  const {
+    query,
+    dateFrom,
+    dateTo,
+    region,
+    timezone,
+    onlyDuplicates,
+    setQuery,
+    setDateFrom,
+    setDateTo,
+    setRegion,
+    setTimezone,
+    setOnlyDuplicates,
+    resetFilters
+  } = useAdminFiltersStore(useShallow((state) => state));
   const deferredQuery = useDeferredValue(query);
 
-  const duplicatePhoneSet = new Set(
-    rows
-      .map((item) => item.phone)
-      .filter((phone, _, array) => array.filter((candidate) => candidate === phone).length > 1)
-  );
+  const duplicatePhoneSet = useMemo(() => {
+    const phoneCounts = new Map<string, number>();
+    for (const item of rows) {
+      phoneCounts.set(item.phone, (phoneCounts.get(item.phone) ?? 0) + 1);
+    }
+    return new Set([...phoneCounts.entries()].filter(([, count]) => count > 1).map(([phone]) => phone));
+  }, [rows]);
 
-  const regions = [...new Set(rows.map(getRegionLabel).filter((item): item is string => Boolean(item)))].sort();
-  const timezones = [
-    ...new Set(rows.map((item) => item.timezone).filter((item): item is string => Boolean(item)))
-  ].sort();
+  const regions = useMemo(
+    () => [...new Set(rows.map(getRegionLabel).filter(Boolean))].sort(),
+    [rows]
+  );
+  const timezones = useMemo(
+    () => [...new Set(rows.map((item) => item.timezone).filter((tz): tz is string => Boolean(tz)))].sort(),
+    [rows]
+  );
 
   const filteredComments = rows.filter((item) => {
     const target =

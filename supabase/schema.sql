@@ -5,6 +5,7 @@ create table if not exists public.comment_submissions (
   nickname text not null,
   name text not null,
   phone text not null,
+  hospital text,
   message text not null,
   like_count integer not null default 0,
   hidden boolean not null default false,
@@ -17,6 +18,7 @@ create table if not exists public.comment_submissions (
   created_at timestamptz not null default now()
 );
 
+alter table public.comment_submissions add column if not exists hospital text;
 alter table public.comment_submissions add column if not exists ip_address text;
 alter table public.comment_submissions add column if not exists country text;
 alter table public.comment_submissions add column if not exists region text;
@@ -150,10 +152,6 @@ for select
 to anon, authenticated
 using (true);
 
+-- like_count 증가는 increment_public_comment_like RPC(SECURITY DEFINER)가 처리하므로
+-- 익명 UPDATE 정책은 불필요하며 보안 위험(닉네임·메시지 직접 변조 가능)이 있어 제거
 drop policy if exists "public comments updatable like count" on public.public_comments;
-create policy "public comments updatable like count"
-on public.public_comments
-for update
-to anon, authenticated
-using (true)
-with check (true);

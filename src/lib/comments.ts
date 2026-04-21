@@ -210,14 +210,10 @@ export async function deleteCommentSubmission(commentId: string) {
     throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
   }
 
-  const { error: publicError } = await supabase.from(PUBLIC_TABLE).delete().eq("id", commentId);
-  if (publicError) {
-    throw publicError;
-  }
-
-  const { error: adminError } = await supabase.from(ADMIN_TABLE).delete().eq("id", commentId);
-  if (adminError) {
-    throw adminError;
+  // DB trigger (comment_submissions_delete_public) cascades delete to public_comments automatically
+  const { error } = await supabase.from(ADMIN_TABLE).delete().eq("id", commentId);
+  if (error) {
+    throw error;
   }
 }
 
@@ -274,6 +270,11 @@ export function buildAdminAnalytics(items: CommentSubmission[]): AdminAnalytics 
     hourly[hour].count += 1;
   });
 
+  const dailyFormatter = new Intl.DateTimeFormat("ko-KR", {
+    month: "2-digit",
+    day: "2-digit"
+  });
+
   return {
     hourly,
     regions: buildTopBuckets(
@@ -286,11 +287,7 @@ export function buildAdminAnalytics(items: CommentSubmission[]): AdminAnalytics 
     duplicatePhones: buildDuplicateBuckets(items, (item) => item.phone, "미확인 연락처"),
     daily: buildTopBuckets(
       items,
-      (item) =>
-        new Intl.DateTimeFormat("ko-KR", {
-          month: "2-digit",
-          day: "2-digit"
-        }).format(new Date(item.created_at)),
+      (item) => dailyFormatter.format(new Date(item.created_at)),
       "미확인 일자",
       7
     )

@@ -12,7 +12,7 @@ type Props = {
   emptyMessage: string;
 };
 
-const MAX_VISIBLE_COMMENTS = 5;
+const SCROLL_MARGIN_AFTER_INDEX = 5;
 const DISPLAY_TIME_ZONE = "Asia/Seoul";
 
 export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
@@ -202,7 +202,7 @@ export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
                   focusedCommentId === comment.id ? "ring-2 ring-sky/60" : ""
                 }`}
                 style={
-                  index < MAX_VISIBLE_COMMENTS
+                  index < SCROLL_MARGIN_AFTER_INDEX
                     ? undefined
                     : {
                         scrollMarginTop: "1rem"
