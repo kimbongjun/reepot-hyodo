@@ -14,7 +14,7 @@ export function HeroSection({ title, description }: Props) {
       <div className="absolute -left-20 top-10 h-56 w-56 rounded-full bg-sky/25 blur-3xl" />
       <div className="absolute bottom-0 right-10 h-52 w-52 rounded-full bg-brand/10 blur-3xl" />
 
-      <div className="relative grid gap-8 md:grid-cols-[1.15fr_0.85fr] md:items-end">
+      <div className="relative grid gap-8 md:items-end">
         <div className="space-y-6">
           <div className="space-y-4">
             <div className="flex items-center gap-4">
@@ -33,11 +33,7 @@ export function HeroSection({ title, description }: Props) {
 
             <h1 className="max-w-3xl font-[var(--font-display)] text-4xl font-black leading-[1.15] tracking-[-0.04em] text-black md:text-6xl">
               {title}
-            </h1>
-
-            <p className="max-w-2xl whitespace-pre-wrap text-base leading-7 text-black/65 md:text-lg">
-              {description}
-            </p>
+            </h1>            
           </div>
         </div>
       </div>

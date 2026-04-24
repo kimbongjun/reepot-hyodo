@@ -59,7 +59,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
         <h2 className="font-[var(--font-display)] text-2xl font-black tracking-[-0.03em] text-black">
           {title}
         </h2>
-        <p className="whitespace-pre-wrap text-sm leading-6 text-black/60">{description}</p>
+        {/* <p className="whitespace-pre-wrap text-sm leading-6 text-black/60">{description}</p> */}
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
