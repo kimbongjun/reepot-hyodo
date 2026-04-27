@@ -105,13 +105,13 @@ export function YoutubeSection({ videoItemsJson }: Props) {
       {(active.title || active.description) && (
         <div className="mb-6 space-y-1.5">
           {active.title && (
-            <h2 className="text-2xl font-black tracking-[-0.03em] text-black">
+            <h2 className="text-3xl font-black tracking-[-0.03em] text-black">
               {active.title}
             </h2>
           )}
           {active.description && (
             <div
-              className="text-sm leading-6 text-black/55"
+              className="text-2xl  text-black/55"
               dangerouslySetInnerHTML={{ __html: active.description }}
             />
           )}

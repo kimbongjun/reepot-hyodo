@@ -35,7 +35,7 @@ export function HeroSection({ title, description }: Props) {
               {title}
             </h1>    
             <div
-              className="text-sm md:text-lg"
+              className="text-2xl md:text-2xl"
               dangerouslySetInnerHTML={{ __html: description }}
             />
           </div>

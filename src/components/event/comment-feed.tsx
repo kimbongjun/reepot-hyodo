@@ -210,7 +210,7 @@ export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
                 }
               >
                 <div className="flex items-center justify-between gap-4">
-                  <p className="font-bold">{comment.nickname}</p>
+                  <p className="font-bold text-xl">{comment.nickname}</p>
                   <time className="text-xs text-white/60">
                     {new Intl.DateTimeFormat("ko-KR", {
                       dateStyle: "short",
@@ -219,7 +219,7 @@ export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
                     }).format(new Date(comment.created_at))}
                   </time>
                 </div>
-                <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/88">
+                <p className="mt-3 whitespace-pre-wrap text-lg leading-6 text-white/88">
                   {comment.message}
                 </p>
                 <div className="mt-4 flex items-center justify-between gap-3">

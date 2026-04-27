@@ -64,7 +64,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
 
       <div className="grid gap-3 md:grid-cols-2">
         <label className="space-y-2 text-sm text-black">
-          <span className="font-medium">닉네임</span>
+          <span className="font-medium text-lg">닉네임</span>
           <input
             required
             maxLength={30}
@@ -76,7 +76,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
         </label>
 
         <label className="space-y-2 text-sm text-black">
-          <span className="font-medium">이름</span>
+          <span className="font-medium text-lg">이름</span>
           <input
             required
             maxLength={20}
@@ -88,7 +88,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
         </label>
 
         <label className="space-y-2 text-sm text-black">
-          <span className="font-medium">연락처</span>
+          <span className="font-medium text-lg">연락처</span>
           <input
             required
             maxLength={11}
@@ -101,7 +101,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
         </label>
 
         <label className="space-y-2 text-sm text-black">
-          <span className="font-medium">병원명</span>
+          <span className="font-medium text-lg">병원명</span>
           <input
             required
             value={form.hospital}
@@ -112,7 +112,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
         </label>
 
         <label className="space-y-2 text-sm text-black md:col-span-2">
-          <span className="font-medium">메시지</span>
+          <span className="font-medium text-lg">메시지</span>
           <textarea
             required
             minLength={2}
@@ -129,7 +129,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
       <button
         type="submit"
         disabled={isPending}
-        className="inline-flex w-full items-center justify-center rounded-2xl bg-brand px-5 py-3.5 text-sm font-bold text-white transition hover:bg-[#24304f] disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex w-full items-center justify-center rounded-2xl bg-brand px-5 py-3.5 text-lg font-bold text-white transition hover:bg-[#24304f] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? "등록 중..." : submitLabel}
       </button>
