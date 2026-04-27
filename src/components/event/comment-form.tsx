@@ -53,7 +53,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-5 rounded-[1.8rem] border border-brand/10 bg-white/88 p-6 shadow-panel backdrop-blur"
+      className="space-y-5 rounded-[1.8rem] border border-brand/10 bg-white/88 p-6 shadow-panel backdrop-blur bg-white"
     >
       <div className="space-y-2">
         <h2 className="font-[var(--font-display)] text-2xl font-black tracking-[-0.03em] text-black">
