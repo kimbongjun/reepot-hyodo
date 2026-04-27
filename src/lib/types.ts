@@ -103,6 +103,10 @@ export function parseVideoItems(json: string): VideoItem[] {
 }
 
 export type SiteSettings = {
+  metaTitle: string;
+  metaDescription: string;
+  ogImageUrl: string | null;
+  faviconUrl: string | null;
   videoItems: string;
   eventNotice: string;
   heroTitle: string;

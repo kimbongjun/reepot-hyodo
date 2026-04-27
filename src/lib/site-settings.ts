@@ -4,6 +4,10 @@ import { createServiceSupabaseClient } from "@/lib/supabase/server";
 const SETTINGS_TABLE = "site_settings";
 
 const SITE_SETTING_KEYS = {
+  metaTitle: "meta_title",
+  metaDescription: "meta_description",
+  ogImageUrl: "og_image_url",
+  faviconUrl: "favicon_url",
   videoItems: "video_items",
   eventNotice: "event_notice",
   heroTitle: "hero_title",
@@ -26,6 +30,10 @@ const SITE_SETTING_KEYS = {
 } satisfies Record<keyof SiteSettings, string>;
 
 export const defaultSiteSettings: SiteSettings = {
+  metaTitle: "리팟 효도 캠페인",
+  metaDescription: "MBN 동치미 본방송 시청 인증 이벤트",
+  ogImageUrl: null,
+  faviconUrl: null,
   videoItems: "[]",
   eventNotice:
     "`.env.local`에 Supabase 값을 넣고 `supabase/schema.sql`을 반영하면 실시간 댓글과 관리자 수집 기능까지 모두 동작합니다.",
@@ -72,6 +80,10 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   }
 
   return {
+    metaTitle:                     get("metaTitle")                     ?? defaultSiteSettings.metaTitle,
+    metaDescription:               get("metaDescription")               ?? defaultSiteSettings.metaDescription,
+    ogImageUrl:                    get("ogImageUrl"),
+    faviconUrl:                    get("faviconUrl"),
     videoItems:                    get("videoItems")                    ?? defaultSiteSettings.videoItems,
     eventNotice:                   get("eventNotice")                   ?? defaultSiteSettings.eventNotice,
     heroTitle:                     get("heroTitle")                     ?? defaultSiteSettings.heroTitle,

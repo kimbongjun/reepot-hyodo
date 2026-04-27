@@ -17,6 +17,7 @@ const TABS = [
   { id: "basic",         label: "기본 문구" },
   { id: "participation", label: "참여 섹션" },
   { id: "prize",         label: "경품 카드" },
+  { id: "seo",           label: "SEO / 메타" },
 ] as const;
 
 type TabId = typeof TABS[number]["id"];
@@ -342,6 +343,47 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
             )}
             {prizeCard(1)}
             {prizeCard(2)}
+          </div>
+        );
+
+      /* SEO / 메타 탭 */
+      case "seo":
+        return (
+          <div className="space-y-5">
+            {sub(
+              "기본 메타 정보",
+              "브라우저 탭 타이틀과 검색엔진·SNS 공유 시 표시되는 설명 문구입니다.",
+              <>
+                {textField("metaTitle",       "페이지 타이틀",   { placeholder: "리팟 효도 캠페인" })}
+                {textField("metaDescription", "메타 설명 문구",  { multiline: true, rows: 2, placeholder: "SNS 공유 시 표시될 설명을 입력하세요." })}
+              </>
+            )}
+
+            <div className="space-y-4 rounded-2xl border border-brand/8 bg-[#f9fcff] p-4">
+              <div>
+                <p className="text-sm font-semibold text-black">OG 이미지</p>
+                <p className="mt-0.5 text-xs leading-5 text-black/45">
+                  SNS 공유 시 미리보기로 표시됩니다. 권장 크기: 1200×630 px
+                </p>
+              </div>
+              <ThumbnailUpload
+                value={settings.ogImageUrl ?? ""}
+                onChange={(url) => set("ogImageUrl", url)}
+              />
+            </div>
+
+            <div className="space-y-4 rounded-2xl border border-brand/8 bg-[#f9fcff] p-4">
+              <div>
+                <p className="text-sm font-semibold text-black">파비콘</p>
+                <p className="mt-0.5 text-xs leading-5 text-black/45">
+                  브라우저 탭·북마크에 표시되는 아이콘입니다. PNG 권장, 최소 64×64 px
+                </p>
+              </div>
+              <ThumbnailUpload
+                value={settings.faviconUrl ?? ""}
+                onChange={(url) => set("faviconUrl", url)}
+              />
+            </div>
           </div>
         );
     }
