@@ -12,6 +12,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  experimental: {
+    devtoolSegmentExplorer: false
+  },
   async headers() {
     return [
       {

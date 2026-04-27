@@ -10,6 +10,32 @@ type AdminData = {
   envAdmins: string[];
 };
 
+function isAdminData(value: unknown): value is AdminData {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    Array.isArray((value as AdminData).dbAdmins) &&
+    Array.isArray((value as AdminData).envAdmins)
+  );
+}
+
+function getResponseMessage(value: unknown) {
+  if (typeof value !== "object" || value === null || !("message" in value)) {
+    return null;
+  }
+
+  const message = (value as { message?: unknown }).message;
+  return typeof message === "string" ? message : null;
+}
+
+async function readJson(response: Response) {
+  try {
+    return (await response.json()) as unknown;
+  } catch {
+    return null;
+  }
+}
+
 export function AdminManagementCard() {
   const [data, setData] = useState<AdminData>({ dbAdmins: [], envAdmins: [] });
   const [newEmail, setNewEmail] = useState("");
@@ -17,10 +43,36 @@ export function AdminManagementCard() {
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    fetch("/api/admin/admins")
-      .then((res) => res.json() as Promise<AdminData>)
-      .then(setData)
-      .catch(() => null);
+    let isMounted = true;
+
+    async function loadAdmins() {
+      try {
+        const response = await fetch("/api/admin/admins");
+        const result = await readJson(response);
+
+        if (!response.ok || !isAdminData(result)) {
+          throw new Error(
+            getResponseMessage(result) ?? "관리자 목록을 불러오지 못했습니다."
+          );
+        }
+
+        if (isMounted) {
+          setData(result);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setFeedback(
+            error instanceof Error ? error.message : "관리자 목록을 불러오지 못했습니다."
+          );
+        }
+      }
+    }
+
+    loadAdmins();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   function handleAdd(event: React.FormEvent<HTMLFormElement>) {
@@ -28,27 +80,36 @@ export function AdminManagementCard() {
     setFeedback(null);
 
     startTransition(async () => {
-      const res = await fetch("/api/admin/admins", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: newEmail })
-      });
+      try {
+        const res = await fetch("/api/admin/admins", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: newEmail })
+        });
 
-      const result = (await res.json()) as { email?: string; message?: string };
+        const result = await readJson(res);
+        const email =
+          typeof result === "object" &&
+          result !== null &&
+          typeof (result as { email?: unknown }).email === "string"
+            ? (result as { email: string }).email
+            : null;
 
-      if (!res.ok) {
-        setFeedback(result.message ?? "추가에 실패했습니다.");
-        return;
+        if (!res.ok || !email) {
+          throw new Error(getResponseMessage(result) ?? "추가에 실패했습니다.");
+        }
+
+        setNewEmail("");
+        setData((prev) => ({
+          ...prev,
+          dbAdmins: prev.dbAdmins.includes(email)
+            ? prev.dbAdmins
+            : [...prev.dbAdmins, email]
+        }));
+        setFeedback(`${email} 관리자가 추가되었습니다.`);
+      } catch (error) {
+        setFeedback(error instanceof Error ? error.message : "추가에 실패했습니다.");
       }
-
-      setNewEmail("");
-      setData((prev) => ({
-        ...prev,
-        dbAdmins: prev.dbAdmins.includes(result.email!)
-          ? prev.dbAdmins
-          : [...prev.dbAdmins, result.email!]
-      }));
-      setFeedback(`${result.email} 관리자가 추가되었습니다.`);
     });
   }
 
@@ -56,22 +117,25 @@ export function AdminManagementCard() {
     setFeedback(null);
 
     startTransition(async () => {
-      const res = await fetch(`/api/admin/admins/${encodeURIComponent(email)}`, {
-        method: "DELETE"
-      });
+      try {
+        const res = await fetch(`/api/admin/admins/${encodeURIComponent(email)}`, {
+          method: "DELETE"
+        });
 
-      const result = (await res.json()) as { email?: string; message?: string };
+        const result = await readJson(res);
 
-      if (!res.ok) {
-        setFeedback(result.message ?? "삭제에 실패했습니다.");
-        return;
+        if (!res.ok) {
+          throw new Error(getResponseMessage(result) ?? "삭제에 실패했습니다.");
+        }
+
+        setData((prev) => ({
+          ...prev,
+          dbAdmins: prev.dbAdmins.filter((e) => e !== email)
+        }));
+        setFeedback(`${email} 관리자가 삭제되었습니다.`);
+      } catch (error) {
+        setFeedback(error instanceof Error ? error.message : "삭제에 실패했습니다.");
       }
-
-      setData((prev) => ({
-        ...prev,
-        dbAdmins: prev.dbAdmins.filter((e) => e !== email)
-      }));
-      setFeedback(`${email} 관리자가 삭제되었습니다.`);
     });
   }
 

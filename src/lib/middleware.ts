@@ -1,6 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { parseAdminEmails } from "@/lib/admin-emails";
 import {
   hasPublicSupabaseEnv,
   supabaseAnonKey,
@@ -36,7 +35,6 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isAdminArea =
     pathname.startsWith("/admin") || pathname.startsWith("/api/admin");
-  const isAuthArea = pathname.startsWith("/auth/login");
 
   if (!isAdminArea) {
     return response;
@@ -50,24 +48,6 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
-  }
-
-  const admins = parseAdminEmails();
-  const email = user.email?.toLowerCase();
-
-  if (!email || !admins.includes(email)) {
-    if (isAuthArea) {
-      return response;
-    }
-
-    if (pathname.startsWith("/api/admin")) {
-      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
-    }
-
-    const url = request.nextUrl.clone();
-    url.pathname = "/auth/login";
-    url.searchParams.set("error", "unauthorized");
     return NextResponse.redirect(url);
   }
 
