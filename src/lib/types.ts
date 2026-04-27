@@ -85,13 +85,6 @@ export type SiteSettings = {
   commentFormSubmitLabel: string;
   commentFeedTitle: string;
   commentFeedEmptyMessage: string;
-  benefitsTitle: string;
-  benefit1Title: string;
-  benefit1Description: string;
-  benefit2Title: string;
-  benefit2Description: string;
-  benefit3Title: string;
-  benefit3Description: string;
   cta1Label: string;
   cta1Url: string | null;
   cta2Label: string;

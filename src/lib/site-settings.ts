@@ -17,13 +17,6 @@ const SITE_SETTING_KEYS = {
   commentFormSubmitLabel: "comment_form_submit_label",
   commentFeedTitle: "comment_feed_title",
   commentFeedEmptyMessage: "comment_feed_empty_message",
-  benefitsTitle: "benefits_title",
-  benefit1Title: "benefit_1_title",
-  benefit1Description: "benefit_1_description",
-  benefit2Title: "benefit_2_title",
-  benefit2Description: "benefit_2_description",
-  benefit3Title: "benefit_3_title",
-  benefit3Description: "benefit_3_description",
   cta1Label: "cta_1_label",
   cta1Url: "cta_1_url",
   cta2Label: "cta_2_label",
@@ -58,16 +51,6 @@ export const defaultSiteSettings: SiteSettings = {
   commentFormSubmitLabel: "참여 내용 등록하기",
   commentFeedTitle: "방금 등록된 참여 메시지",
   commentFeedEmptyMessage: "아직 등록된 메시지가 없습니다. 첫 참여 메시지를 남겨 보세요.",
-  benefitsTitle: "이벤트 참여 혜택",
-  benefit1Title: "참여 즉시 노출",
-  benefit1Description:
-    "등록 직후 공개 피드에 반영되어 현장 참여감을 빠르게 끌어올립니다.",
-  benefit2Title: "운영 데이터 분리",
-  benefit2Description:
-    "이름과 연락처는 관리자 화면에서만 관리하고 공개 화면에는 닉네임과 메시지만 보여줍니다.",
-  benefit3Title: "캠페인 확장성",
-  benefit3Description:
-    "로고, 메시지, 핵심 문구만 바꾸면 다른 이벤트로도 유연하게 전환할 수 있습니다.",
   cta1Label: "",
   cta1Url: null,
   cta2Label: "",
@@ -152,27 +135,6 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     commentFeedEmptyMessage:
       normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.commentFeedEmptyMessage)) ??
       defaultSiteSettings.commentFeedEmptyMessage,
-    benefitsTitle:
-      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.benefitsTitle)) ??
-      defaultSiteSettings.benefitsTitle,
-    benefit1Title:
-      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.benefit1Title)) ??
-      defaultSiteSettings.benefit1Title,
-    benefit1Description:
-      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.benefit1Description)) ??
-      defaultSiteSettings.benefit1Description,
-    benefit2Title:
-      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.benefit2Title)) ??
-      defaultSiteSettings.benefit2Title,
-    benefit2Description:
-      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.benefit2Description)) ??
-      defaultSiteSettings.benefit2Description,
-    benefit3Title:
-      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.benefit3Title)) ??
-      defaultSiteSettings.benefit3Title,
-    benefit3Description:
-      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.benefit3Description)) ??
-      defaultSiteSettings.benefit3Description,
     cta1Label:
       normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.cta1Label)) ??
       defaultSiteSettings.cta1Label,

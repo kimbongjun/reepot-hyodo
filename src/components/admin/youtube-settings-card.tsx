@@ -3,240 +3,305 @@
 import { useState, useTransition } from "react";
 import type { SiteSettings, VideoType } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 type Props = {
   initialSettings: SiteSettings;
 };
 
-type Field = {
-  key: keyof SiteSettings;
-  label: string;
-  placeholder?: string;
-  multiline?: boolean;
-  rows?: number;
-  monospace?: boolean;
-};
+const TABS = [
+  { id: "video",         label: "영상" },
+  { id: "basic",         label: "기본 문구" },
+  { id: "participation", label: "참여 섹션" },
+  { id: "prize",         label: "경품 카드" },
+  { id: "cta",           label: "CTA 링크" },
+] as const;
 
-const fieldGroups: Array<{
-  title: string;
-  description: string;
-  fields: Field[];
-}> = [
-  {
-    title: "기본 노출 설정",
-    description: "이벤트 상단과 영상 섹션의 기본 정보를 관리합니다.",
-    fields: [
-      { key: "eventNotice", label: "상단 안내 문구", multiline: true },
-      { key: "heroTitle", label: "Hero 타이틀" },
-      { key: "heroDescription", label: "Hero 설명", multiline: true },
-      { key: "youtubeTitle", label: "영상 섹션 타이틀" },
-      { key: "youtubeEmptyMessage", label: "영상 미등록 안내", multiline: true }
-    ]
-  },
-  {
-    title: "참여 섹션 문구",
-    description: "참여 등록 폼과 실시간 댓글 피드의 핵심 문구를 조정합니다.",
-    fields: [
-      { key: "commentFormTitle", label: "참여 폼 타이틀" },
-      { key: "commentFormDescription", label: "참여 폼 설명", multiline: true },
-      { key: "commentFormSubmitLabel", label: "참여 버튼 문구" },
-      { key: "commentFeedTitle", label: "댓글 피드 타이틀" },
-      { key: "commentFeedEmptyMessage", label: "댓글 비어있음 안내", multiline: true }
-    ]
-  },
-  {
-    title: "이벤트 카드 설정",
-    description: "2열 카드 섹션의 타이틀·설명과 각 카드의 당첨 표기·썸네일·HTML 내용을 관리합니다. 카드 이미지와 내용이 모두 비어 있으면 섹션 자체가 숨겨집니다.",
-    fields: [
-      { key: "eventCardsSectionTitle", label: "섹션 타이틀" },
-      { key: "eventCardsSectionDescription", label: "섹션 설명", multiline: true },
-      { key: "eventCard1WinnerLabel", label: "카드 1 당첨 표기 (예: 1등 (1명))" },
-      { key: "eventCard1ImageUrl", label: "카드 1 썸네일 URL", placeholder: "https://..." },
-      { key: "eventCard1Title", label: "카드 1 타이틀" },
-      { key: "eventCard1Description", label: "카드 1 설명", multiline: true },
-      { key: "eventCard2WinnerLabel", label: "카드 2 당첨 표기 (예: 2등 (3명))" },
-      { key: "eventCard2ImageUrl", label: "카드 2 썸네일 URL", placeholder: "https://..." },
-      { key: "eventCard2Title", label: "카드 2 타이틀" },
-      { key: "eventCard2Description", label: "카드 2 설명", multiline: true }
-    ]
-  },
-  {
-    title: "CTA 링크 설정",
-    description: "영상 섹션 하단에 표시되는 링크 배너 3개의 명칭과 URL을 설정합니다. 명칭과 URL이 모두 입력된 항목만 노출됩니다.",
-    fields: [
-      { key: "cta1Label", label: "링크 1 명칭" },
-      { key: "cta1Url", label: "링크 1 URL", placeholder: "https://..." },
-      { key: "cta2Label", label: "링크 2 명칭" },
-      { key: "cta2Url", label: "링크 2 URL", placeholder: "https://..." },
-      { key: "cta3Label", label: "링크 3 명칭" },
-      { key: "cta3Url", label: "링크 3 URL", placeholder: "https://..." }
-    ]
-  },
-  {
-    title: "혜택 섹션 문구",
-    description: "하단 혜택 카드 제목과 설명을 관리자에서 직접 수정합니다.",
-    fields: [
-      { key: "benefitsTitle", label: "혜택 섹션 타이틀" },
-      { key: "benefit1Title", label: "혜택 제목" },
-      { key: "benefit1Description", label: "혜택 설명", multiline: true }
-    ]
-  }
-];
+type TabId = typeof TABS[number]["id"];
 
 export function YoutubeSettingsCard({ initialSettings }: Props) {
   const [settings, setSettings] = useState(initialSettings);
+  const [activeTab, setActiveTab] = useState<TabId>("video");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  function updateField(name: keyof SiteSettings, value: string) {
-    setSettings((current) => ({
-      ...current,
-      [name]: value
-    }));
+  function set(name: keyof SiteSettings, value: string) {
+    setSettings((prev) => ({ ...prev, [name]: value }));
   }
 
   function setVideoType(type: VideoType) {
-    setSettings((current) => ({ ...current, videoType: type }));
+    setSettings((prev) => ({ ...prev, videoType: type }));
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setFeedback(null);
-
     startTransition(async () => {
-      const response = await fetch("/api/admin/settings", {
+      const res = await fetch("/api/admin/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ settings })
       });
-
-      const result = (await response.json()) as Partial<SiteSettings> & {
-        message?: string;
-      };
-
-      if (!response.ok) {
+      const result = (await res.json()) as Partial<SiteSettings> & { message?: string };
+      if (!res.ok) {
         setFeedback(result.message ?? "설정 저장에 실패했습니다.");
         return;
       }
-
-      setSettings((current) => ({ ...current, ...result }));
+      setSettings((prev) => ({ ...prev, ...result }));
       setFeedback("설정이 저장되었습니다.");
     });
   }
 
+  /* ── 필드 렌더 헬퍼 ── */
+  function field(
+    key: keyof SiteSettings,
+    label: string,
+    opts: { placeholder?: string; multiline?: boolean; rows?: number } = {}
+  ) {
+    const value = (settings[key] as string) ?? "";
+    return (
+      <label key={key} className={`block space-y-1.5 text-sm${opts.multiline ? " md:col-span-2" : ""}`}>
+        <span className="font-medium text-black/75">{label}</span>
+        {opts.multiline ? (
+          <textarea
+            value={value}
+            onChange={(e) => set(key, e.target.value)}
+            rows={opts.rows ?? 3}
+            placeholder={opts.placeholder}
+            spellCheck={false}
+            className="w-full rounded-xl border border-brand/12 bg-[#f7fbff] px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
+          />
+        ) : (
+          <Input
+            value={value}
+            onChange={(e) => set(key, e.target.value)}
+            placeholder={opts.placeholder}
+          />
+        )}
+      </label>
+    );
+  }
+
+  /* ── 서브섹션 래퍼 ── */
+  function subsection(title: string, hint: string, children: React.ReactNode) {
+    return (
+      <div className="space-y-4 rounded-2xl border border-brand/8 bg-[#f9fcff] p-4">
+        <div>
+          <p className="text-sm font-semibold text-black">{title}</p>
+          <p className="mt-0.5 text-xs leading-5 text-black/45">{hint}</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">{children}</div>
+      </div>
+    );
+  }
+
+  /* ── 경품 카드 서브섹션 ── */
+  function prizeCard(n: 1 | 2) {
+    const w  = n === 1 ? "eventCard1WinnerLabel"  : "eventCard2WinnerLabel";
+    const img = n === 1 ? "eventCard1ImageUrl"    : "eventCard2ImageUrl";
+    const t  = n === 1 ? "eventCard1Title"        : "eventCard2Title";
+    const d  = n === 1 ? "eventCard1Description"  : "eventCard2Description";
+    return (
+      <div className="space-y-4 rounded-2xl border border-brand/10 bg-white p-4">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-black text-white">
+            {n}
+          </span>
+          <p className="text-sm font-semibold text-black">경품 카드 {n}</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {field(w,   "당첨 표기 (예: 1등 (1명))")}
+          {field(img, "썸네일 이미지 URL", { placeholder: "https://..." })}
+          {field(t,   "카드 타이틀")}
+          {field(d,   "카드 설명", { multiline: true })}
+        </div>
+      </div>
+    );
+  }
+
+  /* ── 탭별 콘텐츠 ── */
+  function renderTabContent() {
+    switch (activeTab) {
+
+      case "video":
+        return (
+          <div className="space-y-5">
+            {subsection(
+              "영상 소스",
+              "YouTube 또는 MP4 중 한 가지를 선택하고 URL을 입력합니다.",
+              <>
+                <div className="md:col-span-2">
+                  <div className="inline-flex overflow-hidden rounded-xl border border-brand/12">
+                    {(["youtube", "mp4"] as VideoType[]).map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setVideoType(type)}
+                        className={`px-5 py-2 text-sm font-medium transition-colors ${
+                          settings.videoType === type
+                            ? "bg-brand text-white"
+                            : "bg-white text-black/55 hover:bg-[#f7fbff]"
+                        }`}
+                      >
+                        {type === "youtube" ? "YouTube" : "MP4"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {settings.videoType === "youtube"
+                  ? field("youtubeUrl", "유튜브 URL", { placeholder: "https://www.youtube.com/watch?v=..." })
+                  : field("mp4Url",     "MP4 URL",    { placeholder: "https://example.com/video.mp4" })
+                }
+              </>
+            )}
+            {subsection(
+              "영상 섹션 문구",
+              "공개 페이지의 영상 섹션 타이틀과 영상 미등록 시 안내 문구입니다.",
+              <>
+                {field("youtubeTitle",        "섹션 타이틀")}
+                {field("youtubeEmptyMessage", "영상 없을 때 안내 문구", { multiline: true })}
+              </>
+            )}
+          </div>
+        );
+
+      case "basic":
+        return (
+          <div className="space-y-5">
+            {subsection(
+              "상단 안내 배너",
+              "이벤트 최상단에 표시되는 안내 문구입니다. Supabase 미연결 시에만 노출됩니다.",
+              <>{field("eventNotice", "안내 문구", { multiline: true })}</>
+            )}
+            {subsection(
+              "Hero 섹션",
+              "메인 타이틀과 한 줄 설명 문구입니다.",
+              <>
+                {field("heroTitle",       "타이틀")}
+                {field("heroDescription", "설명 문구", { multiline: true })}
+              </>
+            )}
+          </div>
+        );
+
+      case "participation":
+        return (
+          <div className="space-y-5">
+            {subsection(
+              "참여 등록 폼",
+              "이벤트 참여 폼의 타이틀·설명·버튼 문구입니다.",
+              <>
+                {field("commentFormTitle",       "폼 타이틀")}
+                {field("commentFormSubmitLabel", "버튼 문구")}
+                {field("commentFormDescription", "폼 설명",  { multiline: true })}
+              </>
+            )}
+            {subsection(
+              "실시간 피드",
+              "참여 메시지 피드의 타이틀과 비어있을 때 안내 문구입니다.",
+              <>
+                {field("commentFeedTitle",        "피드 타이틀")}
+                {field("commentFeedEmptyMessage", "비어있을 때 안내", { multiline: true })}
+              </>
+            )}
+          </div>
+        );
+
+      case "prize":
+        return (
+          <div className="space-y-4">
+            {subsection(
+              "섹션 공통",
+              "경품 카드 섹션 전체의 타이틀과 소개 문구입니다.",
+              <>
+                {field("eventCardsSectionTitle",       "섹션 타이틀")}
+                {field("eventCardsSectionDescription", "섹션 설명",  { multiline: true })}
+              </>
+            )}
+            {prizeCard(1)}
+            {prizeCard(2)}
+          </div>
+        );
+
+      case "cta":
+        return (
+          <div className="space-y-3">
+            <p className="text-xs leading-5 text-black/45">
+              명칭과 URL이 모두 입력된 항목만 공개 페이지에 노출됩니다.
+            </p>
+            {([1, 2, 3] as const).map((n) => {
+              const lKey = `cta${n}Label` as keyof SiteSettings;
+              const uKey = `cta${n}Url`   as keyof SiteSettings;
+              return (
+                <div key={n} className="grid gap-3 rounded-2xl border border-brand/8 bg-[#f9fcff] p-4 md:grid-cols-[1fr_2fr]">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand/10 text-[11px] font-bold text-brand">
+                      {n}
+                    </span>
+                    <Input
+                      value={(settings[lKey] as string) ?? ""}
+                      onChange={(e) => set(lKey, e.target.value)}
+                      placeholder="링크 명칭"
+                    />
+                  </div>
+                  <Input
+                    value={(settings[uKey] as string) ?? ""}
+                    onChange={(e) => set(uKey, e.target.value)}
+                    placeholder="https://..."
+                  />
+                </div>
+              );
+            })}
+          </div>
+        );
+    }
+  }
+
   return (
     <Card className="border-brand/10">
-      <CardHeader className="pb-3">
-        <CardTitle>이벤트 노출 문구 설정</CardTitle>
+      <CardHeader className="pb-4">
+        <CardTitle>이벤트 페이지 설정</CardTitle>
         <CardDescription>
-          공개 페이지의 주요 텍스트를 관리자 화면에서 수정하고 즉시 반영할 수 있습니다.
+          공개 페이지의 영상·문구·경품 카드·링크를 탭별로 편집하고 한 번에 저장합니다.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          {/* 영상 타입 + URL 설정 */}
-          <section className="space-y-4 rounded-2xl border border-brand/10 p-4">
-            <div>
-              <h3 className="text-base font-semibold text-black">영상 설정</h3>
-              <p className="mt-1 text-sm leading-6 text-black/60">
-                YouTube 또는 MP4 중 원하는 방식을 선택하고 URL을 입력합니다. 영상은 자동재생·음소거·반복으로 재생됩니다.
-              </p>
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
 
-            {/* 토글 */}
-            <div className="inline-flex overflow-hidden rounded-xl border border-brand/12">
+          {/* 탭 네비게이션 */}
+          <div className="flex flex-wrap gap-1 rounded-2xl border border-brand/8 bg-[#f7fbff] p-1">
+            {TABS.map((tab) => (
               <button
+                key={tab.id}
                 type="button"
-                onClick={() => setVideoType("youtube")}
-                className={`px-5 py-2 text-sm font-medium transition-colors ${
-                  settings.videoType === "youtube"
-                    ? "bg-brand text-white"
-                    : "bg-white text-black/60 hover:bg-[#f7fbff]"
+                onClick={() => setActiveTab(tab.id)}
+                className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? "bg-white text-black shadow-sm"
+                    : "text-black/45 hover:text-black/70"
                 }`}
               >
-                YouTube
+                {tab.label}
               </button>
-              <button
-                type="button"
-                onClick={() => setVideoType("mp4")}
-                className={`px-5 py-2 text-sm font-medium transition-colors ${
-                  settings.videoType === "mp4"
-                    ? "bg-brand text-white"
-                    : "bg-white text-black/60 hover:bg-[#f7fbff]"
-                }`}
-              >
-                MP4
-              </button>
-            </div>
+            ))}
+          </div>
 
-            {/* 조건부 URL 입력 */}
-            {settings.videoType === "youtube" ? (
-              <label className="block space-y-2 text-sm text-black">
-                <span className="font-medium">유튜브 URL</span>
-                <Input
-                  value={settings.youtubeUrl ?? ""}
-                  onChange={(e) => updateField("youtubeUrl", e.target.value)}
-                  placeholder="https://www.youtube.com/watch?v=..."
-                />
-              </label>
-            ) : (
-              <label className="block space-y-2 text-sm text-black">
-                <span className="font-medium">MP4 URL</span>
-                <Input
-                  value={settings.mp4Url ?? ""}
-                  onChange={(e) => updateField("mp4Url", e.target.value)}
-                  placeholder="https://example.com/video.mp4"
-                />
-              </label>
-            )}
-          </section>
+          {/* 탭 콘텐츠 */}
+          <div>{renderTabContent()}</div>
 
-          {fieldGroups.map((group) => (
-            <section key={group.title} className="space-y-4 rounded-2xl border border-brand/10 p-4">
-              <div>
-                <h3 className="text-base font-semibold text-black">{group.title}</h3>
-                <p className="mt-1 text-sm leading-6 text-black/60">{group.description}</p>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                {group.fields.map((field) => (
-                  <label
-                    key={field.key}
-                    className={`space-y-2 text-sm text-black ${
-                      field.multiline ? "md:col-span-2" : ""
-                    }`}
-                  >
-                    <span className="font-medium">{field.label}</span>
-                    {field.multiline ? (
-                      <textarea
-                        value={settings[field.key] as string ?? ""}
-                        onChange={(e) => updateField(field.key, e.target.value)}
-                        rows={field.rows ?? 3}
-                        className={`w-full rounded-xl border border-brand/12 bg-[#f7fbff] px-4 py-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40${field.monospace ? " font-mono text-xs leading-relaxed" : ""}`}
-                        placeholder={field.placeholder}
-                        spellCheck={false}
-                      />
-                    ) : (
-                      <Input
-                        value={settings[field.key] as string ?? ""}
-                        onChange={(e) => updateField(field.key, e.target.value)}
-                        placeholder={field.placeholder}
-                      />
-                    )}
-                  </label>
-                ))}
-              </div>
-            </section>
-          ))}
-
-          <div className="flex items-center gap-3">
+          {/* 저장 */}
+          <div className="flex items-center gap-3 border-t border-brand/8 pt-4">
             <Button type="submit" disabled={isPending}>
               {isPending ? "저장 중..." : "설정 저장"}
             </Button>
-            {feedback ? <p className="text-sm text-brand">{feedback}</p> : null}
+            {feedback && (
+              <p className={`text-sm ${feedback.includes("실패") ? "text-red-500" : "text-brand"}`}>
+                {feedback}
+              </p>
+            )}
           </div>
+
         </form>
       </CardContent>
     </Card>

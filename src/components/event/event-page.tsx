@@ -1,6 +1,5 @@
 import type { PublicComment, SiteSettings } from "@/lib/types";
 import { HeroSection } from "./hero-section";
-import { BenefitsSection } from "./benefits-section";
 import { CtaSection } from "./cta-section";
 import { EventCardsSection } from "./event-cards-section";
 import { FooterSection } from "./footer-section";
