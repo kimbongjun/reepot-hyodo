@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false }
+  },
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     shortcut: [{ url: "/favicon.svg", type: "image/svg+xml" }],
