@@ -72,7 +72,7 @@ export function EventCardsSection({ sectionTitle, sectionDescription, cards }: P
             {/* 당첨 표기 배지 */}
             {card.winnerLabel && (
               <div className="absolute left-5 top-5">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/92 px-4 py-1.5 text-xs font-black tracking-[-0.01em] text-brand shadow backdrop-blur-sm">
+                <span className="bg-white inline-flex items-center gap-1.5 rounded-full bg-white/92 px-4 py-1.5 text-xs font-black tracking-[-0.01em] text-brand shadow backdrop-blur-sm">
                   <span className="h-1.5 w-1.5 rounded-full bg-brand/60" />
                   {card.winnerLabel}
                 </span>
