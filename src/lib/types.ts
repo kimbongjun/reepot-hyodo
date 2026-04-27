@@ -92,4 +92,18 @@ export type SiteSettings = {
   benefit2Description: string;
   benefit3Title: string;
   benefit3Description: string;
+  cta1Label: string;
+  cta1Url: string | null;
+  cta2Label: string;
+  cta2Url: string | null;
+  cta3Label: string;
+  cta3Url: string | null;
+  eventCardsSectionTitle: string;
+  eventCardsSectionDescription: string;
+  eventCard1WinnerLabel: string;
+  eventCard1ImageUrl: string | null;
+  eventCard1Html: string;
+  eventCard2WinnerLabel: string;
+  eventCard2ImageUrl: string | null;
+  eventCard2Html: string;
 };

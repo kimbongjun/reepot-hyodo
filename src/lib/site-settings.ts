@@ -23,7 +23,21 @@ const SITE_SETTING_KEYS = {
   benefit2Title: "benefit_2_title",
   benefit2Description: "benefit_2_description",
   benefit3Title: "benefit_3_title",
-  benefit3Description: "benefit_3_description"
+  benefit3Description: "benefit_3_description",
+  cta1Label: "cta_1_label",
+  cta1Url: "cta_1_url",
+  cta2Label: "cta_2_label",
+  cta2Url: "cta_2_url",
+  cta3Label: "cta_3_label",
+  cta3Url: "cta_3_url",
+  eventCardsSectionTitle: "event_cards_section_title",
+  eventCardsSectionDescription: "event_cards_section_description",
+  eventCard1WinnerLabel: "event_card_1_winner_label",
+  eventCard1ImageUrl: "event_card_1_image_url",
+  eventCard1Html: "event_card_1_html",
+  eventCard2WinnerLabel: "event_card_2_winner_label",
+  eventCard2ImageUrl: "event_card_2_image_url",
+  eventCard2Html: "event_card_2_html"
 } satisfies Record<keyof SiteSettings, string>;
 
 export const defaultSiteSettings: SiteSettings = {
@@ -51,7 +65,21 @@ export const defaultSiteSettings: SiteSettings = {
     "이름과 연락처는 관리자 화면에서만 관리하고 공개 화면에는 닉네임과 메시지만 보여줍니다.",
   benefit3Title: "캠페인 확장성",
   benefit3Description:
-    "로고, 메시지, 핵심 문구만 바꾸면 다른 이벤트로도 유연하게 전환할 수 있습니다."
+    "로고, 메시지, 핵심 문구만 바꾸면 다른 이벤트로도 유연하게 전환할 수 있습니다.",
+  cta1Label: "",
+  cta1Url: null,
+  cta2Label: "",
+  cta2Url: null,
+  cta3Label: "",
+  cta3Url: null,
+  eventCardsSectionTitle: "",
+  eventCardsSectionDescription: "",
+  eventCard1WinnerLabel: "",
+  eventCard1ImageUrl: null,
+  eventCard1Html: "",
+  eventCard2WinnerLabel: "",
+  eventCard2ImageUrl: null,
+  eventCard2Html: ""
 };
 
 function normalizeSettingValue(value: string | null | undefined) {
@@ -140,7 +168,49 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       defaultSiteSettings.benefit3Title,
     benefit3Description:
       normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.benefit3Description)) ??
-      defaultSiteSettings.benefit3Description
+      defaultSiteSettings.benefit3Description,
+    cta1Label:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.cta1Label)) ??
+      defaultSiteSettings.cta1Label,
+    cta1Url:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.cta1Url)) ??
+      defaultSiteSettings.cta1Url,
+    cta2Label:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.cta2Label)) ??
+      defaultSiteSettings.cta2Label,
+    cta2Url:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.cta2Url)) ??
+      defaultSiteSettings.cta2Url,
+    cta3Label:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.cta3Label)) ??
+      defaultSiteSettings.cta3Label,
+    cta3Url:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.cta3Url)) ??
+      defaultSiteSettings.cta3Url,
+    eventCardsSectionTitle:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCardsSectionTitle)) ??
+      defaultSiteSettings.eventCardsSectionTitle,
+    eventCardsSectionDescription:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCardsSectionDescription)) ??
+      defaultSiteSettings.eventCardsSectionDescription,
+    eventCard1WinnerLabel:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard1WinnerLabel)) ??
+      defaultSiteSettings.eventCard1WinnerLabel,
+    eventCard1ImageUrl:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard1ImageUrl)) ??
+      defaultSiteSettings.eventCard1ImageUrl,
+    eventCard1Html:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard1Html)) ??
+      defaultSiteSettings.eventCard1Html,
+    eventCard2WinnerLabel:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard2WinnerLabel)) ??
+      defaultSiteSettings.eventCard2WinnerLabel,
+    eventCard2ImageUrl:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard2ImageUrl)) ??
+      defaultSiteSettings.eventCard2ImageUrl,
+    eventCard2Html:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard2Html)) ??
+      defaultSiteSettings.eventCard2Html
   };
 }
 

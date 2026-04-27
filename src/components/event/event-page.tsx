@@ -1,6 +1,8 @@
 import type { PublicComment, SiteSettings } from "@/lib/types";
 import { HeroSection } from "./hero-section";
 import { BenefitsSection } from "./benefits-section";
+import { CtaSection } from "./cta-section";
+import { EventCardsSection } from "./event-cards-section";
 import { FooterSection } from "./footer-section";
 import { CommentForm } from "./comment-form";
 import { CommentFeed } from "./comment-feed";
@@ -31,6 +33,14 @@ export function EventPage({ initialComments, isReady, settings }: Props) {
           youtubeUrl={settings.youtubeUrl}
           mp4Url={settings.mp4Url}
         />
+       
+        <CtaSection
+          items={[
+            { label: settings.cta1Label, url: settings.cta1Url ?? "" },
+            { label: settings.cta2Label, url: settings.cta2Url ?? "" },
+            { label: settings.cta3Label, url: settings.cta3Url ?? "" }
+          ].filter((item) => item.label && item.url)}
+        />
 
         <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
           <CommentForm
@@ -45,15 +55,22 @@ export function EventPage({ initialComments, isReady, settings }: Props) {
           />
         </div>
 
-        <BenefitsSection
-          title={settings.benefitsTitle}
-          items={[
+        <EventCardsSection
+          sectionTitle={settings.eventCardsSectionTitle}
+          sectionDescription={settings.eventCardsSectionDescription}
+          cards={[
             {
-              title: settings.benefit1Title,
-              description: settings.benefit1Description
-            }          
+              winnerLabel: settings.eventCard1WinnerLabel,
+              imageUrl: settings.eventCard1ImageUrl,
+              html: settings.eventCard1Html
+            },
+            {
+              winnerLabel: settings.eventCard2WinnerLabel,
+              imageUrl: settings.eventCard2ImageUrl,
+              html: settings.eventCard2Html
+            }
           ]}
-        />               
+        />
       </div>
       <FooterSection title="COPYRIGHT Ⓒ 2026 CLASSYS ALL RIGHTS RESERVED." />
     </main>

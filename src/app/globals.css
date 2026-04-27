@@ -54,6 +54,48 @@ button {
   z-index: -1;
 }
 
+.event-card-html {
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: rgba(0, 0, 0, 0.65);
+}
+.event-card-html h1,
+.event-card-html h2,
+.event-card-html h3,
+.event-card-html h4 {
+  font-weight: 900;
+  color: #000;
+  letter-spacing: -0.025em;
+  margin-top: 1.2em;
+  margin-bottom: 0.4em;
+}
+.event-card-html h2 { font-size: 1.25rem; }
+.event-card-html h3 { font-size: 1.05rem; }
+.event-card-html p { margin-bottom: 0.65em; }
+.event-card-html p:last-child { margin-bottom: 0; }
+.event-card-html ul,
+.event-card-html ol {
+  padding-left: 1.4em;
+  margin-bottom: 0.65em;
+}
+.event-card-html ul { list-style-type: disc; }
+.event-card-html ol { list-style-type: decimal; }
+.event-card-html li { margin-bottom: 0.2em; }
+.event-card-html strong { font-weight: 700; color: rgba(0, 0, 0, 0.85); }
+.event-card-html em { font-style: italic; }
+.event-card-html a {
+  color: #2d3b64;
+  text-decoration: underline;
+  text-decoration-color: rgba(45, 59, 100, 0.3);
+}
+.event-card-html a:hover { text-decoration-color: #2d3b64; }
+.event-card-html img { max-width: 100%; border-radius: 0.75rem; }
+.event-card-html hr {
+  border: none;
+  border-top: 1px solid rgba(45, 59, 100, 0.1);
+  margin: 1em 0;
+}
+
 @layer base {
   :root {
     --font-sans: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;

@@ -15,6 +15,8 @@ type Field = {
   label: string;
   placeholder?: string;
   multiline?: boolean;
+  rows?: number;
+  monospace?: boolean;
 };
 
 const fieldGroups: Array<{
@@ -45,16 +47,38 @@ const fieldGroups: Array<{
     ]
   },
   {
+    title: "이벤트 카드 설정",
+    description: "2열 카드 섹션의 타이틀·설명과 각 카드의 당첨 표기·썸네일·HTML 내용을 관리합니다. 카드 이미지와 내용이 모두 비어 있으면 섹션 자체가 숨겨집니다.",
+    fields: [
+      { key: "eventCardsSectionTitle", label: "섹션 타이틀" },
+      { key: "eventCardsSectionDescription", label: "섹션 설명", multiline: true },
+      { key: "eventCard1WinnerLabel", label: "카드 1 당첨 표기 (예: 1등 (1명))" },
+      { key: "eventCard1ImageUrl", label: "카드 1 썸네일 URL", placeholder: "https://..." },
+      { key: "eventCard1Html", label: "카드 1 내용 (HTML)", multiline: true, rows: 10, monospace: true },
+      { key: "eventCard2WinnerLabel", label: "카드 2 당첨 표기 (예: 2등 (3명))" },
+      { key: "eventCard2ImageUrl", label: "카드 2 썸네일 URL", placeholder: "https://..." },
+      { key: "eventCard2Html", label: "카드 2 내용 (HTML)", multiline: true, rows: 10, monospace: true }
+    ]
+  },
+  {
+    title: "CTA 링크 설정",
+    description: "영상 섹션 하단에 표시되는 링크 배너 3개의 명칭과 URL을 설정합니다. 명칭과 URL이 모두 입력된 항목만 노출됩니다.",
+    fields: [
+      { key: "cta1Label", label: "링크 1 명칭" },
+      { key: "cta1Url", label: "링크 1 URL", placeholder: "https://..." },
+      { key: "cta2Label", label: "링크 2 명칭" },
+      { key: "cta2Url", label: "링크 2 URL", placeholder: "https://..." },
+      { key: "cta3Label", label: "링크 3 명칭" },
+      { key: "cta3Url", label: "링크 3 URL", placeholder: "https://..." }
+    ]
+  },
+  {
     title: "혜택 섹션 문구",
     description: "하단 혜택 카드 제목과 설명을 관리자에서 직접 수정합니다.",
     fields: [
       { key: "benefitsTitle", label: "혜택 섹션 타이틀" },
-      { key: "benefit1Title", label: "혜택 1 제목" },
-      { key: "benefit1Description", label: "혜택 1 설명", multiline: true },
-      { key: "benefit2Title", label: "혜택 2 제목" },
-      { key: "benefit2Description", label: "혜택 2 설명", multiline: true },
-      { key: "benefit3Title", label: "혜택 3 제목" },
-      { key: "benefit3Description", label: "혜택 3 설명", multiline: true }
+      { key: "benefit1Title", label: "혜택 제목" },
+      { key: "benefit1Description", label: "혜택 설명", multiline: true }
     ]
   }
 ];
@@ -187,9 +211,10 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
                       <textarea
                         value={settings[field.key] as string ?? ""}
                         onChange={(e) => updateField(field.key, e.target.value)}
-                        rows={3}
-                        className="w-full rounded-xl border border-brand/12 bg-[#f7fbff] px-4 py-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
+                        rows={field.rows ?? 3}
+                        className={`w-full rounded-xl border border-brand/12 bg-[#f7fbff] px-4 py-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40${field.monospace ? " font-mono text-xs leading-relaxed" : ""}`}
                         placeholder={field.placeholder}
+                        spellCheck={false}
                       />
                     ) : (
                       <Input
