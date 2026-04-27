@@ -62,12 +62,14 @@ export function EventPage({ initialComments, isReady, settings }: Props) {
             {
               winnerLabel: settings.eventCard1WinnerLabel,
               imageUrl: settings.eventCard1ImageUrl,
-              html: settings.eventCard1Html
+              title: settings.eventCard1Title,
+              description: settings.eventCard1Description
             },
             {
               winnerLabel: settings.eventCard2WinnerLabel,
               imageUrl: settings.eventCard2ImageUrl,
-              html: settings.eventCard2Html
+              title: settings.eventCard2Title,
+              description: settings.eventCard2Description
             }
           ]}
         />

@@ -1,7 +1,8 @@
 type EventCard = {
   winnerLabel: string;
   imageUrl: string | null;
-  html: string;
+  title: string;
+  description: string;
 };
 
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
 };
 
 export function EventCardsSection({ sectionTitle, sectionDescription, cards }: Props) {
-  const visible = cards.filter((c) => c.imageUrl || c.html);
+  const visible = cards.filter((c) => c.imageUrl || c.title || c.description);
   if (!visible.length) return null;
 
   return (
@@ -49,19 +50,24 @@ export function EventCardsSection({ sectionTitle, sectionDescription, cards }: P
                 )}
               </div>
             )}
-            {!card.imageUrl && card.winnerLabel && (
-              <div className="px-6 pt-6">
+
+            <div className="p-6 space-y-3">
+              {!card.imageUrl && card.winnerLabel && (
                 <span className="inline-block rounded-full bg-sky/30 px-3.5 py-1.5 text-xs font-bold tracking-[-0.01em] text-brand">
                   {card.winnerLabel}
                 </span>
-              </div>
-            )}
-            {card.html && (
-              <div
-                className="event-card-html p-6"
-                dangerouslySetInnerHTML={{ __html: card.html }}
-              />
-            )}
+              )}
+              {card.title && (
+                <h3 className="text-xl font-black tracking-[-0.02em] text-black">
+                  {card.title}
+                </h3>
+              )}
+              {card.description && (
+                <p className="whitespace-pre-wrap text-sm leading-6 text-black/65">
+                  {card.description}
+                </p>
+              )}
+            </div>
           </article>
         ))}
       </div>

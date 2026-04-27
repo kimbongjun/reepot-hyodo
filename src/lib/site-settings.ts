@@ -34,10 +34,12 @@ const SITE_SETTING_KEYS = {
   eventCardsSectionDescription: "event_cards_section_description",
   eventCard1WinnerLabel: "event_card_1_winner_label",
   eventCard1ImageUrl: "event_card_1_image_url",
-  eventCard1Html: "event_card_1_html",
+  eventCard1Title: "event_card_1_title",
+  eventCard1Description: "event_card_1_description",
   eventCard2WinnerLabel: "event_card_2_winner_label",
   eventCard2ImageUrl: "event_card_2_image_url",
-  eventCard2Html: "event_card_2_html"
+  eventCard2Title: "event_card_2_title",
+  eventCard2Description: "event_card_2_description"
 } satisfies Record<keyof SiteSettings, string>;
 
 export const defaultSiteSettings: SiteSettings = {
@@ -76,10 +78,12 @@ export const defaultSiteSettings: SiteSettings = {
   eventCardsSectionDescription: "",
   eventCard1WinnerLabel: "",
   eventCard1ImageUrl: null,
-  eventCard1Html: "",
+  eventCard1Title: "",
+  eventCard1Description: "",
   eventCard2WinnerLabel: "",
   eventCard2ImageUrl: null,
-  eventCard2Html: ""
+  eventCard2Title: "",
+  eventCard2Description: ""
 };
 
 function normalizeSettingValue(value: string | null | undefined) {
@@ -199,18 +203,24 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     eventCard1ImageUrl:
       normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard1ImageUrl)) ??
       defaultSiteSettings.eventCard1ImageUrl,
-    eventCard1Html:
-      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard1Html)) ??
-      defaultSiteSettings.eventCard1Html,
+    eventCard1Title:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard1Title)) ??
+      defaultSiteSettings.eventCard1Title,
+    eventCard1Description:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard1Description)) ??
+      defaultSiteSettings.eventCard1Description,
     eventCard2WinnerLabel:
       normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard2WinnerLabel)) ??
       defaultSiteSettings.eventCard2WinnerLabel,
     eventCard2ImageUrl:
       normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard2ImageUrl)) ??
       defaultSiteSettings.eventCard2ImageUrl,
-    eventCard2Html:
-      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard2Html)) ??
-      defaultSiteSettings.eventCard2Html
+    eventCard2Title:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard2Title)) ??
+      defaultSiteSettings.eventCard2Title,
+    eventCard2Description:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventCard2Description)) ??
+      defaultSiteSettings.eventCard2Description
   };
 }
 

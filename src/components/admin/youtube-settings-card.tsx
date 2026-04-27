@@ -54,10 +54,12 @@ const fieldGroups: Array<{
       { key: "eventCardsSectionDescription", label: "섹션 설명", multiline: true },
       { key: "eventCard1WinnerLabel", label: "카드 1 당첨 표기 (예: 1등 (1명))" },
       { key: "eventCard1ImageUrl", label: "카드 1 썸네일 URL", placeholder: "https://..." },
-      { key: "eventCard1Html", label: "카드 1 내용 (HTML)", multiline: true, rows: 10, monospace: true },
+      { key: "eventCard1Title", label: "카드 1 타이틀" },
+      { key: "eventCard1Description", label: "카드 1 설명", multiline: true },
       { key: "eventCard2WinnerLabel", label: "카드 2 당첨 표기 (예: 2등 (3명))" },
       { key: "eventCard2ImageUrl", label: "카드 2 썸네일 URL", placeholder: "https://..." },
-      { key: "eventCard2Html", label: "카드 2 내용 (HTML)", multiline: true, rows: 10, monospace: true }
+      { key: "eventCard2Title", label: "카드 2 타이틀" },
+      { key: "eventCard2Description", label: "카드 2 설명", multiline: true }
     ]
   },
   {

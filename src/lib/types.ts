@@ -102,8 +102,10 @@ export type SiteSettings = {
   eventCardsSectionDescription: string;
   eventCard1WinnerLabel: string;
   eventCard1ImageUrl: string | null;
-  eventCard1Html: string;
+  eventCard1Title: string;
+  eventCard1Description: string;
   eventCard2WinnerLabel: string;
   eventCard2ImageUrl: string | null;
-  eventCard2Html: string;
+  eventCard2Title: string;
+  eventCard2Description: string;
 };
