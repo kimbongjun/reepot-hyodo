@@ -141,9 +141,15 @@ exception
   when duplicate_object then null;
 end $$;
 
+create table if not exists public.admin_users (
+  email text primary key,
+  created_at timestamptz not null default now()
+);
+
 alter table public.comment_submissions enable row level security;
 alter table public.public_comments enable row level security;
 alter table public.site_settings enable row level security;
+alter table public.admin_users enable row level security;
 
 drop policy if exists "public comments selectable" on public.public_comments;
 create policy "public comments selectable"

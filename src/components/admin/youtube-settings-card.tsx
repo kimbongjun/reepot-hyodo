@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import type { SiteSettings } from "@/lib/types";
+import type { SiteSettings, VideoType } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,7 +26,6 @@ const fieldGroups: Array<{
     title: "기본 노출 설정",
     description: "이벤트 상단과 영상 섹션의 기본 정보를 관리합니다.",
     fields: [
-      { key: "youtubeUrl", label: "유튜브 URL", placeholder: "https://www.youtube.com/watch?v=..." },
       { key: "eventNotice", label: "상단 안내 문구", multiline: true },
       { key: "heroTitle", label: "Hero 타이틀" },
       { key: "heroDescription", label: "Hero 설명", multiline: true },
@@ -72,6 +71,10 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
     }));
   }
 
+  function setVideoType(type: VideoType) {
+    setSettings((current) => ({ ...current, videoType: type }));
+  }
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFeedback(null);
@@ -79,12 +82,8 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
     startTransition(async () => {
       const response = await fetch("/api/admin/settings", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          settings
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ settings })
       });
 
       const result = (await response.json()) as Partial<SiteSettings> & {
@@ -96,11 +95,8 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
         return;
       }
 
-      setSettings((current) => ({
-        ...current,
-        ...result
-      }));
-      setFeedback("이벤트 노출 문구와 유튜브 설정이 저장되었습니다.");
+      setSettings((current) => ({ ...current, ...result }));
+      setFeedback("설정이 저장되었습니다.");
     });
   }
 
@@ -114,6 +110,63 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
       </CardHeader>
       <CardContent>
         <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* 영상 타입 + URL 설정 */}
+          <section className="space-y-4 rounded-2xl border border-brand/10 p-4">
+            <div>
+              <h3 className="text-base font-semibold text-black">영상 설정</h3>
+              <p className="mt-1 text-sm leading-6 text-black/60">
+                YouTube 또는 MP4 중 원하는 방식을 선택하고 URL을 입력합니다. 영상은 자동재생·음소거·반복으로 재생됩니다.
+              </p>
+            </div>
+
+            {/* 토글 */}
+            <div className="inline-flex overflow-hidden rounded-xl border border-brand/12">
+              <button
+                type="button"
+                onClick={() => setVideoType("youtube")}
+                className={`px-5 py-2 text-sm font-medium transition-colors ${
+                  settings.videoType === "youtube"
+                    ? "bg-brand text-white"
+                    : "bg-white text-black/60 hover:bg-[#f7fbff]"
+                }`}
+              >
+                YouTube
+              </button>
+              <button
+                type="button"
+                onClick={() => setVideoType("mp4")}
+                className={`px-5 py-2 text-sm font-medium transition-colors ${
+                  settings.videoType === "mp4"
+                    ? "bg-brand text-white"
+                    : "bg-white text-black/60 hover:bg-[#f7fbff]"
+                }`}
+              >
+                MP4
+              </button>
+            </div>
+
+            {/* 조건부 URL 입력 */}
+            {settings.videoType === "youtube" ? (
+              <label className="block space-y-2 text-sm text-black">
+                <span className="font-medium">유튜브 URL</span>
+                <Input
+                  value={settings.youtubeUrl ?? ""}
+                  onChange={(e) => updateField("youtubeUrl", e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                />
+              </label>
+            ) : (
+              <label className="block space-y-2 text-sm text-black">
+                <span className="font-medium">MP4 URL</span>
+                <Input
+                  value={settings.mp4Url ?? ""}
+                  onChange={(e) => updateField("mp4Url", e.target.value)}
+                  placeholder="https://example.com/video.mp4"
+                />
+              </label>
+            )}
+          </section>
+
           {fieldGroups.map((group) => (
             <section key={group.title} className="space-y-4 rounded-2xl border border-brand/10 p-4">
               <div>
@@ -132,16 +185,16 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
                     <span className="font-medium">{field.label}</span>
                     {field.multiline ? (
                       <textarea
-                        value={settings[field.key] ?? ""}
-                        onChange={(event) => updateField(field.key, event.target.value)}
+                        value={settings[field.key] as string ?? ""}
+                        onChange={(e) => updateField(field.key, e.target.value)}
                         rows={3}
                         className="w-full rounded-xl border border-brand/12 bg-[#f7fbff] px-4 py-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
                         placeholder={field.placeholder}
                       />
                     ) : (
                       <Input
-                        value={settings[field.key] ?? ""}
-                        onChange={(event) => updateField(field.key, event.target.value)}
+                        value={settings[field.key] as string ?? ""}
+                        onChange={(e) => updateField(field.key, e.target.value)}
                         placeholder={field.placeholder}
                       />
                     )}

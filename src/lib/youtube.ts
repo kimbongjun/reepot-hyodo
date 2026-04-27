@@ -36,5 +36,5 @@ export function getYoutubeEmbedUrl(url: string | null | undefined) {
   const videoId = url ? normalizeYoutubeUrl(url) : null;
   if (!videoId) return null;
 
-  return `https://www.youtube.com/embed/${videoId}`;
+  return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
 }

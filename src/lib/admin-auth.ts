@@ -1,11 +1,31 @@
 import { redirect } from "next/navigation";
 import { createClient as createServerAuthClient } from "@/lib/server";
 import { parseAdminEmails } from "@/lib/admin-emails";
+import { createServiceSupabaseClient } from "@/lib/supabase/server";
 
-export function isAllowedAdminEmail(email: string | null | undefined) {
+export function isEnvAdminEmail(email: string | null | undefined): email is string {
   if (!email) return false;
-  const admins = parseAdminEmails();
-  return admins.includes(email.toLowerCase());
+  return parseAdminEmails().includes(email.toLowerCase());
+}
+
+export async function getDbAdminEmails(): Promise<string[]> {
+  const supabase = createServiceSupabaseClient();
+  if (!supabase) return [];
+
+  const { data } = await supabase
+    .from("admin_users")
+    .select("email");
+
+  return (data ?? []).map((row) => row.email.toLowerCase());
+}
+
+export async function isAllowedAdminEmailAsync(email: string | null | undefined): Promise<boolean> {
+  if (!email) return false;
+  const lower = email.toLowerCase();
+  if (parseAdminEmails().includes(lower)) return true;
+
+  const dbEmails = await getDbAdminEmails();
+  return dbEmails.includes(lower);
 }
 
 export async function requireAdminUser() {
@@ -18,7 +38,8 @@ export async function requireAdminUser() {
     redirect("/auth/login");
   }
 
-  if (!isAllowedAdminEmail(user.email)) {
+  const allowed = await isAllowedAdminEmailAsync(user.email);
+  if (!allowed) {
     redirect("/auth/login?error=unauthorized");
   }
 
@@ -31,10 +52,10 @@ export async function getAdminUser() {
     data: { user }
   } = await supabase.auth.getUser();
 
-  if (!user || !isAllowedAdminEmail(user.email)) {
-    return null;
-  }
+  if (!user) return null;
+
+  const allowed = await isAllowedAdminEmailAsync(user.email);
+  if (!allowed) return null;
 
   return user;
 }
-

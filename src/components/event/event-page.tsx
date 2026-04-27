@@ -27,7 +27,9 @@ export function EventPage({ initialComments, isReady, settings }: Props) {
         <YoutubeSection
           title={settings.youtubeTitle}
           emptyMessage={settings.youtubeEmptyMessage}
+          videoType={settings.videoType}
           youtubeUrl={settings.youtubeUrl}
+          mp4Url={settings.mp4Url}
         />
 
         <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">

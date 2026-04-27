@@ -69,8 +69,12 @@ export type AdminAnalytics = {
   daily: AnalyticsBucket[];
 };
 
+export type VideoType = "youtube" | "mp4";
+
 export type SiteSettings = {
+  videoType: VideoType;
   youtubeUrl: string | null;
+  mp4Url: string | null;
   eventNotice: string;
   heroTitle: string;
   heroDescription: string;

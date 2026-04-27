@@ -1,10 +1,12 @@
-import type { SiteSettings } from "@/lib/types";
+import type { SiteSettings, VideoType } from "@/lib/types";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 
 const SETTINGS_TABLE = "site_settings";
 
 const SITE_SETTING_KEYS = {
+  videoType: "video_type",
   youtubeUrl: "youtube_url",
+  mp4Url: "mp4_url",
   eventNotice: "event_notice",
   heroTitle: "hero_title",
   heroDescription: "hero_description",
@@ -25,12 +27,14 @@ const SITE_SETTING_KEYS = {
 } satisfies Record<keyof SiteSettings, string>;
 
 export const defaultSiteSettings: SiteSettings = {
+  videoType: "youtube",
   youtubeUrl: null,
+  mp4Url: null,
   eventNotice:
     "`.env.local`에 Supabase 값을 넣고 `supabase/schema.sql`을 반영하면 실시간 댓글과 관리자 수집 기능까지 모두 동작합니다.",
   heroTitle: "리팟 효도 캠페인 이벤트",
   heroDescription: "MBN 동치미 본방송 시청 인증 이벤트",
-  youtubeTitle: "유튜브 영상",
+  youtubeTitle: "캠페인 영상",
   youtubeEmptyMessage:
     "아직 등록된 유튜브 영상이 없습니다. 관리자 화면에서 URL을 입력하면 여기에 바로 반영됩니다.",
   commentFormTitle: "실시간 참여 등록",
@@ -74,10 +78,18 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     (data ?? []).map((item) => [item.setting_key, item.setting_value])
   );
 
+  const rawVideoType = normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.videoType));
+  const videoType: VideoType =
+    rawVideoType === "mp4" ? "mp4" : defaultSiteSettings.videoType;
+
   return {
+    videoType,
     youtubeUrl:
       normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.youtubeUrl)) ??
       defaultSiteSettings.youtubeUrl,
+    mp4Url:
+      normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.mp4Url)) ??
+      defaultSiteSettings.mp4Url,
     eventNotice:
       normalizeSettingValue(settingsMap.get(SITE_SETTING_KEYS.eventNotice)) ??
       defaultSiteSettings.eventNotice,
@@ -141,7 +153,9 @@ export async function updateSiteSettings(input: Partial<SiteSettings>) {
   const nextSettings = {
     ...defaultSiteSettings,
     ...input,
-    youtubeUrl: normalizeSettingValue(input.youtubeUrl ?? defaultSiteSettings.youtubeUrl)
+    videoType: (input.videoType === "mp4" ? "mp4" : "youtube") satisfies VideoType,
+    youtubeUrl: normalizeSettingValue(input.youtubeUrl ?? defaultSiteSettings.youtubeUrl),
+    mp4Url: normalizeSettingValue(input.mp4Url ?? defaultSiteSettings.mp4Url)
   } satisfies SiteSettings;
 
   const payload = (Object.entries(SITE_SETTING_KEYS) as Array<
