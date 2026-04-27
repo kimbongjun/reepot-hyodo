@@ -143,8 +143,11 @@ end $$;
 
 create table if not exists public.admin_users (
   email text primary key,
+  role text not null default 'admin',
   created_at timestamptz not null default now()
 );
+
+alter table public.admin_users add column if not exists role text not null default 'admin';
 
 alter table public.comment_submissions enable row level security;
 alter table public.public_comments enable row level security;
