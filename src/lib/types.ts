@@ -71,26 +71,47 @@ export type AdminAnalytics = {
 
 export type VideoType = "youtube" | "mp4";
 
-export type SiteSettings = {
+export type VideoItem = {
+  id: string;
+  title: string;
+  description: string;
+  thumbnailUrl: string;
   videoType: VideoType;
-  youtubeUrl: string | null;
-  mp4Url: string | null;
+  videoUrl: string;
+  labelText: string;
+};
+
+export function parseVideoItems(json: string): VideoItem[] {
+  try {
+    const parsed = JSON.parse(json || "[]") as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((raw) => {
+      const r = raw as Record<string, unknown>;
+      return {
+        id: String(r.id ?? ""),
+        title: String(r.title ?? ""),
+        description: String(r.description ?? ""),
+        thumbnailUrl: String(r.thumbnailUrl ?? ""),
+        videoType: r.videoType === "mp4" ? "mp4" : "youtube",
+        videoUrl: String(r.videoUrl ?? ""),
+        labelText: String(r.labelText ?? "")
+      } satisfies VideoItem;
+    }).filter((item) => item.id);
+  } catch {
+    return [];
+  }
+}
+
+export type SiteSettings = {
+  videoItems: string;
   eventNotice: string;
   heroTitle: string;
   heroDescription: string;
-  youtubeTitle: string;
-  youtubeEmptyMessage: string;
   commentFormTitle: string;
   commentFormDescription: string;
   commentFormSubmitLabel: string;
   commentFeedTitle: string;
   commentFeedEmptyMessage: string;
-  cta1Label: string;
-  cta1Url: string | null;
-  cta2Label: string;
-  cta2Url: string | null;
-  cta3Label: string;
-  cta3Url: string | null;
   eventCardsSectionTitle: string;
   eventCardsSectionDescription: string;
   eventCard1WinnerLabel: string;

@@ -35,7 +35,10 @@ export function EventCardsSection({ sectionTitle, sectionDescription, cards }: P
             </h2>
           )}
           {sectionDescription && (
-            <p className="text-center text-sm leading-6 text-black/50">{sectionDescription}</p>
+            <div
+              className="text-center text-sm leading-6 text-black/50"
+              dangerouslySetInnerHTML={{ __html: sectionDescription }}
+            />
           )}
         </div>
       )}
@@ -87,9 +90,10 @@ export function EventCardsSection({ sectionTitle, sectionDescription, cards }: P
                 </h3>
               )}
               {card.description && (
-                <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-white/70">
-                  {card.description}
-                </p>
+                <div
+                  className="mt-2 text-sm leading-6 text-white/70"
+                  dangerouslySetInnerHTML={{ __html: card.description }}
+                />
               )}
               {/* 카드 하단 구분선 강조 */}
               <div className="mt-4 h-px w-12 rounded-full bg-white/30" />

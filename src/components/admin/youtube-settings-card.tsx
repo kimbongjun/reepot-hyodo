@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import type { SiteSettings, VideoType } from "@/lib/types";
+import type { SiteSettings, VideoItem, VideoType } from "@/lib/types";
+import { parseVideoItems } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ThumbnailUpload } from "./thumbnail-upload";
 
 type Props = {
   initialSettings: SiteSettings;
@@ -15,25 +17,48 @@ const TABS = [
   { id: "basic",         label: "기본 문구" },
   { id: "participation", label: "참여 섹션" },
   { id: "prize",         label: "경품 카드" },
-  { id: "cta",           label: "CTA 링크" },
 ] as const;
 
 type TabId = typeof TABS[number]["id"];
 
+function makeId() {
+  return `v-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
 export function YoutubeSettingsCard({ initialSettings }: Props) {
-  const [settings, setSettings] = useState(initialSettings);
-  const [activeTab, setActiveTab] = useState<TabId>("video");
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [settings, setSettings]     = useState(initialSettings);
+  const [activeTab, setActiveTab]   = useState<TabId>("video");
+  const [feedback, setFeedback]     = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  /* ── 공통 설정 필드 업데이트 ── */
   function set(name: keyof SiteSettings, value: string) {
     setSettings((prev) => ({ ...prev, [name]: value }));
   }
 
-  function setVideoType(type: VideoType) {
-    setSettings((prev) => ({ ...prev, videoType: type }));
+  /* ── 영상 아이템 관련 ── */
+  const videoItems = parseVideoItems(settings.videoItems ?? "[]");
+
+  function saveItems(items: VideoItem[]) {
+    setSettings((prev) => ({ ...prev, videoItems: JSON.stringify(items) }));
   }
 
+  function addItem() {
+    saveItems([
+      ...videoItems,
+      { id: makeId(), title: "", description: "", thumbnailUrl: "", videoType: "youtube", videoUrl: "", labelText: "" }
+    ]);
+  }
+
+  function removeItem(id: string) {
+    saveItems(videoItems.filter((v) => v.id !== id));
+  }
+
+  function patchItem(id: string, patch: Partial<VideoItem>) {
+    saveItems(videoItems.map((v) => (v.id === id ? { ...v, ...patch } : v)));
+  }
+
+  /* ── 폼 저장 ── */
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setFeedback(null);
@@ -53,16 +78,23 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
     });
   }
 
-  /* ── 필드 렌더 헬퍼 ── */
-  function field(
+  /* ── 텍스트 필드 헬퍼 ── */
+  function textField(
     key: keyof SiteSettings,
     label: string,
-    opts: { placeholder?: string; multiline?: boolean; rows?: number } = {}
+    opts: { placeholder?: string; multiline?: boolean; rows?: number; html?: boolean } = {}
   ) {
     const value = (settings[key] as string) ?? "";
     return (
       <label key={key} className={`block space-y-1.5 text-sm${opts.multiline ? " md:col-span-2" : ""}`}>
-        <span className="font-medium text-black/75">{label}</span>
+        <span className="flex items-center gap-1.5 font-medium text-black/75">
+          {label}
+          {opts.html && (
+            <span className="rounded-[0.35rem] border border-brand/15 bg-[#f0f7ff] px-1.5 py-0.5 text-[10px] font-bold text-brand/60">
+              HTML
+            </span>
+          )}
+        </span>
         {opts.multiline ? (
           <textarea
             value={value}
@@ -73,18 +105,14 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
             className="w-full rounded-xl border border-brand/12 bg-[#f7fbff] px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
           />
         ) : (
-          <Input
-            value={value}
-            onChange={(e) => set(key, e.target.value)}
-            placeholder={opts.placeholder}
-          />
+          <Input value={value} onChange={(e) => set(key, e.target.value)} placeholder={opts.placeholder} />
         )}
       </label>
     );
   }
 
   /* ── 서브섹션 래퍼 ── */
-  function subsection(title: string, hint: string, children: React.ReactNode) {
+  function sub(title: string, hint: string, children: React.ReactNode) {
     return (
       <div className="space-y-4 rounded-2xl border border-brand/8 bg-[#f9fcff] p-4">
         <div>
@@ -98,12 +126,12 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
 
   /* ── 경품 카드 서브섹션 ── */
   function prizeCard(n: 1 | 2) {
-    const w  = n === 1 ? "eventCard1WinnerLabel"  : "eventCard2WinnerLabel";
-    const img = n === 1 ? "eventCard1ImageUrl"    : "eventCard2ImageUrl";
-    const t  = n === 1 ? "eventCard1Title"        : "eventCard2Title";
-    const d  = n === 1 ? "eventCard1Description"  : "eventCard2Description";
+    const w   = `eventCard${n}WinnerLabel`  as keyof SiteSettings;
+    const img = `eventCard${n}ImageUrl`     as keyof SiteSettings;
+    const t   = `eventCard${n}Title`        as keyof SiteSettings;
+    const d   = `eventCard${n}Description`  as keyof SiteSettings;
     return (
-      <div className="space-y-4 rounded-2xl border border-brand/10 bg-white p-4">
+      <div key={n} className="space-y-4 rounded-2xl border border-brand/10 bg-white p-4">
         <div className="flex items-center gap-2.5">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-black text-white">
             {n}
@@ -111,148 +139,209 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
           <p className="text-sm font-semibold text-black">경품 카드 {n}</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          {field(w,   "당첨 표기 (예: 1등 (1명))")}
-          {field(img, "썸네일 이미지 URL", { placeholder: "https://..." })}
-          {field(t,   "카드 타이틀")}
-          {field(d,   "카드 설명", { multiline: true })}
+          {textField(w,   "당첨 표기 (예: 1등 (1명))")}
+          {textField(img, "썸네일 이미지 URL", { placeholder: "https://..." })}
+          {textField(t,   "카드 타이틀")}
+          {textField(d,   "카드 설명", { multiline: true, html: true })}
         </div>
       </div>
     );
   }
 
-  /* ── 탭별 콘텐츠 ── */
-  function renderTabContent() {
+  /* ── 탭 콘텐츠 ── */
+  function renderContent() {
     switch (activeTab) {
 
+      /* 영상 탭 — 동적 아이템 관리 */
       case "video":
         return (
-          <div className="space-y-5">
-            {subsection(
-              "영상 소스",
-              "YouTube 또는 MP4 중 한 가지를 선택하고 URL을 입력합니다.",
-              <>
-                <div className="md:col-span-2">
-                  <div className="inline-flex overflow-hidden rounded-xl border border-brand/12">
-                    {(["youtube", "mp4"] as VideoType[]).map((type) => (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => setVideoType(type)}
-                        className={`px-5 py-2 text-sm font-medium transition-colors ${
-                          settings.videoType === type
-                            ? "bg-brand text-white"
-                            : "bg-white text-black/55 hover:bg-[#f7fbff]"
-                        }`}
-                      >
-                        {type === "youtube" ? "YouTube" : "MP4"}
-                      </button>
-                    ))}
+          <div className="space-y-3">
+            {videoItems.length === 0 && (
+              <p className="rounded-2xl border border-dashed border-brand/20 py-6 text-center text-sm text-black/40">
+                등록된 영상이 없습니다. 아래 버튼으로 추가하세요.
+              </p>
+            )}
+
+            {videoItems.map((item, index) => (
+              <div
+                key={item.id}
+                className="space-y-4 rounded-2xl border border-brand/10 bg-white p-4"
+              >
+                {/* 아이템 헤더 */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-xs font-black text-brand">
+                      {index + 1}
+                    </span>
+                    <p className="text-sm font-semibold text-black">영상 {index + 1}</p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => removeItem(item.id)}
+                    className="text-xs text-red-400 transition-colors hover:text-red-600"
+                  >
+                    삭제
+                  </button>
                 </div>
-                {settings.videoType === "youtube"
-                  ? field("youtubeUrl", "유튜브 URL", { placeholder: "https://www.youtube.com/watch?v=..." })
-                  : field("mp4Url",     "MP4 URL",    { placeholder: "https://example.com/video.mp4" })
-                }
-              </>
-            )}
-            {subsection(
-              "영상 섹션 문구",
-              "공개 페이지의 영상 섹션 타이틀과 영상 미등록 시 안내 문구입니다.",
-              <>
-                {field("youtubeTitle",        "섹션 타이틀")}
-                {field("youtubeEmptyMessage", "영상 없을 때 안내 문구", { multiline: true })}
-              </>
-            )}
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  {/* 타이틀 */}
+                  <label className="block space-y-1.5 text-sm">
+                    <span className="font-medium text-black/75">타이틀</span>
+                    <Input
+                      value={item.title}
+                      onChange={(e) => patchItem(item.id, { title: e.target.value })}
+                      placeholder="영상 타이틀"
+                    />
+                  </label>
+
+                  {/* 썸네일 업로드 */}
+                  <div className="space-y-1.5">
+                    <span className="block text-sm font-medium text-black/75">썸네일</span>
+                    <ThumbnailUpload
+                      value={item.thumbnailUrl}
+                      onChange={(url) => patchItem(item.id, { thumbnailUrl: url })}
+                    />
+                  </div>
+
+                  {/* 설명 — HTML 지원 */}
+                  <label className="block space-y-1.5 text-sm md:col-span-2">
+                    <span className="flex items-center gap-1.5 font-medium text-black/75">
+                      설명
+                      <span className="rounded-[0.35rem] border border-brand/15 bg-[#f0f7ff] px-1.5 py-0.5 text-[10px] font-bold text-brand/60">
+                        HTML
+                      </span>
+                    </span>
+                    <textarea
+                      value={item.description}
+                      onChange={(e) => patchItem(item.id, { description: e.target.value })}
+                      rows={2}
+                      spellCheck={false}
+                      placeholder="설명 문구 또는 HTML 코드"
+                      className="w-full rounded-xl border border-brand/12 bg-[#f7fbff] px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
+                    />
+                  </label>
+
+                  {/* 영상 타입 토글 */}
+                  <div className="space-y-1.5">
+                    <p className="text-sm font-medium text-black/75">영상 타입</p>
+                    <div className="inline-flex overflow-hidden rounded-xl border border-brand/12">
+                      {(["youtube", "mp4"] as VideoType[]).map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => patchItem(item.id, { videoType: type })}
+                          className={`px-4 py-2 text-sm font-medium transition-colors ${
+                            item.videoType === type
+                              ? "bg-brand text-white"
+                              : "bg-white text-black/50 hover:bg-[#f7fbff]"
+                          }`}
+                        >
+                          {type === "youtube" ? "YouTube" : "MP4"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 영상 URL */}
+                  <label className="block space-y-1.5 text-sm">
+                    <span className="font-medium text-black/75">
+                      {item.videoType === "youtube" ? "유튜브 URL" : "MP4 URL"}
+                    </span>
+                    <Input
+                      value={item.videoUrl}
+                      onChange={(e) => patchItem(item.id, { videoUrl: e.target.value })}
+                      placeholder={
+                        item.videoType === "youtube"
+                          ? "https://www.youtube.com/watch?v=..."
+                          : "https://example.com/video.mp4"
+                      }
+                    />
+                  </label>
+
+                  {/* 레이블 버튼 문구 */}
+                  <label className="block space-y-1.5 text-sm md:col-span-2">
+                    <span className="font-medium text-black/75">레이블 버튼 문구</span>
+                    <Input
+                      value={item.labelText}
+                      onChange={(e) => patchItem(item.id, { labelText: e.target.value })}
+                      placeholder="예: LIVE 방송 다시보기"
+                    />
+                    <p className="text-[11px] text-black/35">영상 우측 하단에 표시됩니다. 비워두면 숨겨집니다.</p>
+                  </label>
+                </div>
+              </div>
+            ))}
+
+            {/* 추가 버튼 */}
+            <button
+              type="button"
+              onClick={addItem}
+              className="w-full rounded-2xl border border-dashed border-brand/20 py-3 text-sm font-medium text-brand/55 transition-colors hover:border-brand/40 hover:text-brand/80"
+            >
+              + 영상 추가
+            </button>
           </div>
         );
 
+      /* 기본 문구 탭 */
       case "basic":
         return (
           <div className="space-y-5">
-            {subsection(
+            {sub(
               "상단 안내 배너",
-              "이벤트 최상단에 표시되는 안내 문구입니다. Supabase 미연결 시에만 노출됩니다.",
-              <>{field("eventNotice", "안내 문구", { multiline: true })}</>
+              "이벤트 최상단에 표시되는 안내 문구입니다.",
+              <>{textField("eventNotice", "안내 문구", { multiline: true })}</>
             )}
-            {subsection(
+            {sub(
               "Hero 섹션",
               "메인 타이틀과 한 줄 설명 문구입니다.",
               <>
-                {field("heroTitle",       "타이틀")}
-                {field("heroDescription", "설명 문구", { multiline: true })}
+                {textField("heroTitle", "타이틀")}
+                {textField("heroDescription", "설명 문구", { multiline: true, html: true })}
               </>
             )}
           </div>
         );
 
+      /* 참여 섹션 탭 */
       case "participation":
         return (
           <div className="space-y-5">
-            {subsection(
+            {sub(
               "참여 등록 폼",
               "이벤트 참여 폼의 타이틀·설명·버튼 문구입니다.",
               <>
-                {field("commentFormTitle",       "폼 타이틀")}
-                {field("commentFormSubmitLabel", "버튼 문구")}
-                {field("commentFormDescription", "폼 설명",  { multiline: true })}
+                {textField("commentFormTitle",       "폼 타이틀")}
+                {textField("commentFormSubmitLabel", "버튼 문구")}
+                {textField("commentFormDescription", "폼 설명", { multiline: true, html: true })}
               </>
             )}
-            {subsection(
+            {sub(
               "실시간 피드",
-              "참여 메시지 피드의 타이틀과 비어있을 때 안내 문구입니다.",
+              "참여 메시지 피드의 타이틀과 빈 상태 안내 문구입니다.",
               <>
-                {field("commentFeedTitle",        "피드 타이틀")}
-                {field("commentFeedEmptyMessage", "비어있을 때 안내", { multiline: true })}
+                {textField("commentFeedTitle",        "피드 타이틀")}
+                {textField("commentFeedEmptyMessage", "비어있을 때 안내", { multiline: true })}
               </>
             )}
           </div>
         );
 
+      /* 경품 카드 탭 */
       case "prize":
         return (
           <div className="space-y-4">
-            {subsection(
+            {sub(
               "섹션 공통",
               "경품 카드 섹션 전체의 타이틀과 소개 문구입니다.",
               <>
-                {field("eventCardsSectionTitle",       "섹션 타이틀")}
-                {field("eventCardsSectionDescription", "섹션 설명",  { multiline: true })}
+                {textField("eventCardsSectionTitle",       "섹션 타이틀")}
+                {textField("eventCardsSectionDescription", "섹션 설명", { multiline: true, html: true })}
               </>
             )}
             {prizeCard(1)}
             {prizeCard(2)}
-          </div>
-        );
-
-      case "cta":
-        return (
-          <div className="space-y-3">
-            <p className="text-xs leading-5 text-black/45">
-              명칭과 URL이 모두 입력된 항목만 공개 페이지에 노출됩니다.
-            </p>
-            {([1, 2, 3] as const).map((n) => {
-              const lKey = `cta${n}Label` as keyof SiteSettings;
-              const uKey = `cta${n}Url`   as keyof SiteSettings;
-              return (
-                <div key={n} className="grid gap-3 rounded-2xl border border-brand/8 bg-[#f9fcff] p-4 md:grid-cols-[1fr_2fr]">
-                  <div className="flex items-center gap-2">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand/10 text-[11px] font-bold text-brand">
-                      {n}
-                    </span>
-                    <Input
-                      value={(settings[lKey] as string) ?? ""}
-                      onChange={(e) => set(lKey, e.target.value)}
-                      placeholder="링크 명칭"
-                    />
-                  </div>
-                  <Input
-                    value={(settings[uKey] as string) ?? ""}
-                    onChange={(e) => set(uKey, e.target.value)}
-                    placeholder="https://..."
-                  />
-                </div>
-              );
-            })}
           </div>
         );
     }
@@ -263,7 +352,7 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
       <CardHeader className="pb-4">
         <CardTitle>이벤트 페이지 설정</CardTitle>
         <CardDescription>
-          공개 페이지의 영상·문구·경품 카드·링크를 탭별로 편집하고 한 번에 저장합니다.
+          영상·문구·경품 카드를 탭별로 편집하고 한 번에 저장합니다. HTML 배지가 표시된 필드는 HTML 태그를 사용할 수 있습니다.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -288,7 +377,7 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
           </div>
 
           {/* 탭 콘텐츠 */}
-          <div>{renderTabContent()}</div>
+          <div>{renderContent()}</div>
 
           {/* 저장 */}
           <div className="flex items-center gap-3 border-t border-brand/8 pt-4">

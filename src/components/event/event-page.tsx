@@ -1,6 +1,5 @@
 import type { PublicComment, SiteSettings } from "@/lib/types";
 import { HeroSection } from "./hero-section";
-import { CtaSection } from "./cta-section";
 import { EventCardsSection } from "./event-cards-section";
 import { FooterSection } from "./footer-section";
 import { CommentForm } from "./comment-form";
@@ -25,21 +24,7 @@ export function EventPage({ initialComments, isReady, settings }: Props) {
 
         <HeroSection title={settings.heroTitle} description={settings.heroDescription} />
 
-        <YoutubeSection
-          title={settings.youtubeTitle}
-          emptyMessage={settings.youtubeEmptyMessage}
-          videoType={settings.videoType}
-          youtubeUrl={settings.youtubeUrl}
-          mp4Url={settings.mp4Url}
-        />
-       
-        <CtaSection
-          items={[
-            { label: settings.cta1Label, url: settings.cta1Url ?? "" },
-            { label: settings.cta2Label, url: settings.cta2Url ?? "" },
-            { label: settings.cta3Label, url: settings.cta3Url ?? "" }
-          ].filter((item) => item.label && item.url)}
-        />
+        <YoutubeSection videoItemsJson={settings.videoItems} />
 
         <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
           <CommentForm
