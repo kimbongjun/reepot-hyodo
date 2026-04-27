@@ -33,7 +33,8 @@ export function HeroSection({ title, description }: Props) {
 
             <h1 className="max-w-3xl font-[var(--font-display)] text-4xl font-black leading-[1.15] tracking-[-0.04em] text-black md:text-6xl">
               {title}
-            </h1>            
+            </h1>    
+            <p className="text-sm md:text-md">{description}</p>
           </div>
         </div>
       </div>

@@ -3,7 +3,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "리팟 효도 캠페인",
-  description: "실시간 참여형 이벤트 랜딩 페이지와 관리자 운영 화면"
+  description: "실시간 참여형 이벤트 랜딩 페이지와 관리자 운영 화면",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/favicon.svg", type: "image/svg+xml" }]
+  }
 };
 
 export default function RootLayout({

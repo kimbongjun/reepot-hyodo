@@ -45,23 +45,15 @@ export function EventPage({ initialComments, isReady, settings }: Props) {
           />
         </div>
 
-        {/* <BenefitsSection
+        <BenefitsSection
           title={settings.benefitsTitle}
           items={[
             {
               title: settings.benefit1Title,
               description: settings.benefit1Description
-            },
-            {
-              title: settings.benefit2Title,
-              description: settings.benefit2Description
-            },
-            {
-              title: settings.benefit3Title,
-              description: settings.benefit3Description
-            }
+            }          
           ]}
-        />                */}
+        />               
       </div>
       <FooterSection title="COPYRIGHT Ⓒ 2026 CLASSYS ALL RIGHTS RESERVED." />
     </main>
