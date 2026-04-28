@@ -120,11 +120,12 @@ ADMIN_EMAILS=                    # 쉼표 구분 허용 이메일 목록
 ```bash
 npm install          # 의존성 설치
 npm run dev          # 개발 서버 (localhost:3000)
+npm run typecheck    # TypeScript 타입 오류만 체크 (빌드보다 빠름)
 npm run build        # 빌드 검증 — 배포 전 반드시 통과 확인
 npm start            # 프로덕션 서버
 ```
 
-**자동화 테스트 없음.** 변경 후 검증은 `npm run build` + 수동 스모크 체크로 진행.
+**자동화 테스트 없음.** 변경 후 검증은 `npm run typecheck` 또는 `npm run build` + 수동 스모크 체크로 진행.
 상세 검증 절차는 `docs/harness/verification.md` 참조.
 
 ---
@@ -297,8 +298,22 @@ comment-feed.tsx (브라우저 실시간 반영)
 ## 주요 제약 및 주의사항
 
 1. **정적 호스팅 불가** — `force-dynamic`, API Route, 미들웨어 세션 처리로 인해 S3 단독 정적 호스팅 불가. AWS Amplify 필요.
+
 2. **SUPABASE_SERVICE_ROLE_KEY 노출 금지** — 절대 `NEXT_PUBLIC_` 접두사 사용 금지, 클라이언트 코드에 포함 금지.
+   - `supabaseServiceKey`는 `src/lib/supabase/server.ts`에서만 참조해야 함. `"use client"` 파일에 import해도 빌드는 통과하지만, Next.js가 서버 전용 env를 클라이언트 번들에서 제거하므로 런타임에서 `undefined`가 됨 — 서비스 롤 기능이 조용히 실패함.
+   - 검증: `src` 전체에서 `supabaseServiceKey` 검색 결과가 `src/lib/supabase/env.ts`·`src/lib/supabase/server.ts` 두 파일에만 있어야 함.
+
 3. **스키마 동기화** — 코드와 DB 스키마 불일치 시 댓글 좋아요·설정 저장이 먼저 깨짐.
-4. **테스트 자동화 없음** — 변경 후 `npm run build` + 수동 스모크 체크 필수.
-5. **관리자 역할** — `superadmin`과 `admin` role은 UI 표시만 다르고 기능 권한은 동일.
+   - 필수 트리거: `comment_submissions_sync_public` (INSERT/UPDATE → `public_comments` 복사), `comment_submissions_delete_public` (DELETE → `public_comments` 삭제)
+   - 확인 쿼리: `SELECT tgname FROM pg_trigger WHERE tgrelid = 'comment_submissions'::regclass;`
+   - 트리거 누락 시 `supabase/schema.sql`을 Supabase SQL Editor에서 전체 재실행.
+
+4. **테스트 자동화 없음** — 변경 후 `npm run typecheck`(타입 체크 전용, 빠름) 또는 `npm run build`(전체) 확인 필수.
+   - 최소 스모크: 공개 페이지 로드 → 자동 스크롤 없음 확인 → 댓글 등록 → 새 댓글 상단 표시·자동 포커스 → 좋아요 → 관리자 로그인 → 설정 저장
+
+5. **관리자 역할** — `superadmin`과 `admin` role은 관리자 목록 UI 표시만 다르고 API 권한은 동일. `admin-auth.ts`의 `requireAdminUser()`·`getAdminUser()` 함수가 role을 조회하지 않으므로 role 값으로 접근 제어가 되지 않음.
+
 6. **댓글 수집 동기화** — `public_comments`는 트리거로 자동 동기화. 트리거 누락 시 공개 피드 반영 안 됨.
+   - 디버그: `comment_submissions`에 직접 INSERT 후 `public_comments`에 동일 `id` 행이 생기는지 확인. 안 생기면 트리거 재등록 필요 (`schema.sql` 재실행).
+
+7. **초기 스크롤 방지** — `comment-feed.tsx`의 `focusedCommentId`는 반드시 `null`로 초기화해야 함. 댓글 id로 초기화하면 마운트 시 해당 댓글로 자동 스크롤됨. 실시간으로 새 댓글이 도착할 때만 `{ focus: true }` 옵션으로 스크롤이 트리거되어야 함.
