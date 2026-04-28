@@ -63,7 +63,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="space-y-2 text-sm text-black">
+        <label className="space-y-2 text-md text-black">
           <span className="font-medium text-lg">닉네임</span>
           <input
             required
@@ -75,7 +75,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
           />
         </label>
 
-        <label className="space-y-2 text-sm text-black">
+        <label className="space-y-2 text-md text-black">
           <span className="font-medium text-lg">이름</span>
           <input
             required
@@ -87,7 +87,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
           />
         </label>
 
-        <label className="space-y-2 text-sm text-black">
+        <label className="space-y-2 text-md text-black">
           <span className="font-medium text-lg">연락처</span>
           <input
             required
@@ -100,7 +100,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
           />
         </label>
 
-        <label className="space-y-2 text-sm text-black">
+        <label className="space-y-2 text-md text-black">
           <span className="font-medium text-lg">병원명</span>
           <input
             required
@@ -111,7 +111,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
           />
         </label>
 
-        <label className="space-y-2 text-sm text-black md:col-span-2">
+        <label className="space-y-2 text-md text-black md:col-span-2">
           <span className="font-medium text-lg">메시지</span>
           <textarea
             required
@@ -135,7 +135,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
       </button>
 
       {feedback ? (
-        <p className="rounded-2xl bg-sky/30 px-4 py-3 text-sm font-medium text-brand">
+        <p className="rounded-2xl bg-sky/30 px-4 py-3 text-md font-medium text-brand">
           {feedback}
         </p>
       ) : null}

@@ -77,7 +77,7 @@ export function EventCardsSection({ sectionTitle, sectionDescription, cards }: P
             {/* 하단 텍스트 */}
             <div className="absolute bottom-0 left-0 right-0 p-6">
               {card.title && (
-                <h3 className="text-3xl font-black tracking-[-0.02em] text-white drop-shadow-sm">
+                <h3 className="text-2xl font-black tracking-[-0.02em] text-white drop-shadow-sm">
                   {card.title}
                 </h3>
               )}
