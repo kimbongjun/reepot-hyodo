@@ -82,8 +82,8 @@ export function YoutubeSection({ videoItemsJson }: Props) {
   }
 
   function goPage(p: number) {
-    const next = Math.max(0, Math.min(totalMobilePages - 1, p));
-    setMobilePage(next);
+    if (totalMobilePages <= 1) return;
+    setMobilePage(((p % totalMobilePages) + totalMobilePages) % totalMobilePages);
   }
 
   function handleTouchStart(e: React.TouchEvent) {
@@ -181,8 +181,8 @@ export function YoutubeSection({ videoItemsJson }: Props) {
                 )}
               </div>
 
-              {/* 화살표 — 이전 */}
-              {mobilePage > 0 && (
+              {/* 화살표 — 이전 (항상 표시, infinite loop) */}
+              {totalMobilePages > 1 && (
                 <button
                   type="button"
                   onClick={() => goPage(mobilePage - 1)}
@@ -194,8 +194,8 @@ export function YoutubeSection({ videoItemsJson }: Props) {
                 </button>
               )}
 
-              {/* 화살표 — 다음 */}
-              {mobilePage < totalMobilePages - 1 && (
+              {/* 화살표 — 다음 (항상 표시, infinite loop) */}
+              {totalMobilePages > 1 && (
                 <button
                   type="button"
                   onClick={() => goPage(mobilePage + 1)}
