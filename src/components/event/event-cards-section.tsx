@@ -20,23 +20,15 @@ export function EventCardsSection({ sectionTitle, sectionDescription, cards }: P
 
       {/* 섹션 헤더 */}
       {(sectionTitle || sectionDescription) && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <span className="h-px flex-1 bg-gradient-to-r from-brand/20 to-transparent" />
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/15 bg-white/80 px-3.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-brand/60 backdrop-blur-sm">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand/60" />
-              Special Prize
-            </span>
-            <span className="h-px flex-1 bg-gradient-to-l from-brand/20 to-transparent" />
-          </div>
+        <div className="space-y-3">          
           {sectionTitle && (
-            <h2 className="text-center font-[var(--font-display)] text-3xl font-black tracking-[-0.03em] text-black md:text-4xl">
+            <h2 className="text-center font-[var(--font-display)] text-3xl gap-3 font-black tracking-[-0.03em] text-black md:text-4xl">
               {sectionTitle}
             </h2>
           )}
           {sectionDescription && (
             <div
-              className="text-center text-xl leading-6 text-black/50"
+              className="text-center text-xl text-black/50"
               dangerouslySetInnerHTML={{ __html: sectionDescription }}
             />
           )}
@@ -75,8 +67,8 @@ export function EventCardsSection({ sectionTitle, sectionDescription, cards }: P
             {/* 당첨 표기 배지 */}
             {card.winnerLabel && (
               <div className="absolute left-5 top-5">
-                <span className="bg-white inline-flex items-center gap-1.5 rounded-full bg-white/92 px-4 py-1.5 text-md font-black tracking-[-0.01em] text-brand shadow backdrop-blur-sm">
-                  <span className="h-1.5 w-1.5 rounded-full bg-brand/60" />
+                <span className="bg-white inline-flex items-center gap-1.5 rounded-full bg-white/92 px-4 py-1.5 text-md font-black tracking-[-0.01em] text-[#474c52] shadow backdrop-blur-sm">
+                  {/* <span className="h-1.5 w-1.5 rounded-full bg-brand/60" /> */}
                   {card.winnerLabel}
                 </span>
               </div>

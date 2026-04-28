@@ -42,7 +42,7 @@ function ThumbItem({ item, index, activeIndex, onSelect, fixedRatio }: ThumbProp
         )}
         {item.labelText && (
           <div className="pointer-events-none absolute right-1.5 top-1.5">
-            <span className="inline-flex items-center gap-1 rounded-full border border-brand/15 bg-white/90 px-2 py-0.5 text-[11px] font-bold tracking-[-0.01em] text-brand shadow-sm backdrop-blur-sm">
+            <span className="inline-flex items-center gap-1 rounded-full border border-brand/15 bg-white/90 px-2 py-0.5 text-[13px] font-bold tracking-[-0.01em] text-[#3b3f44] shadow-sm backdrop-blur-sm">
               <span className={`h-1 w-1 rounded-full ${
         index === activeIndex
           ? "bg-[#DA5D60]"
@@ -111,7 +111,7 @@ export function YoutubeSection({ videoItemsJson }: Props) {
           )}
           {active.description && (
             <div
-              className="text-2xl  text-black/55"
+              className="text-xl  text-black/55"
               dangerouslySetInnerHTML={{ __html: active.description }}
             />
           )}

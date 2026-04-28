@@ -219,7 +219,7 @@ export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
                     }).format(new Date(comment.created_at))}
                   </time>
                 </div>
-                <p className="mt-3 whitespace-pre-wrap text-lg text-white/88">
+                <p className="mt-3 whitespace-pre-wrap text-md text-white/88">
                   {comment.message}
                 </p>
                 <div className="mt-4 flex items-center justify-between gap-3">

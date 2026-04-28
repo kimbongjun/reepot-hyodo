@@ -129,7 +129,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
       <button
         type="submit"
         disabled={isPending}
-        className="inline-flex w-full items-center justify-center rounded-2xl bg-brand px-5 py-3.5 text-lg font-bold text-white transition hover:bg-[#24304f] disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex w-full items-center justify-center rounded-2xl bg-[#474C52] px-5 py-3.5 text-lg font-bold text-white transition hover:bg-[#24304f] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? "등록 중..." : submitLabel}
       </button>

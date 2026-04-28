@@ -1,7 +1,9 @@
 import Image from "next/image";
 import reepotLogo from "@/imgs/reepot_BI_H.svg";
 import classysLogo from "@/imgs/classys_logo.svg";
-import reepotBanner from "@/imgs/Reepot_respotlight_Web_banner_V1_20260428.png";
+import reepotBannerDesktop from "@/imgs/Reepot_respotlight_Web_banner_V1_20260428.png";
+import reepotBannerMobile from "@/imgs/Reepot_respotlight_banner.jpg";
+
 
 type Props = {
   title: string;
@@ -19,11 +21,17 @@ export function HeroSection({ title, description }: Props) {
         <div className="space-y-6">
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="rounded-[1.25rem] bg-white shadow-[0_20px_40px_rgba(57,61,66,0.08)]">
+              <div className="rounded-[1.25rem] bg-white shadow-[0_20px_40px_rgba(44, 44, 44, 0.08)]">
                 <Image
-                  src={reepotBanner}
+                  src={reepotBannerDesktop}
                   alt="Reepot 효도캠페인"
-                  className="w-full"
+                  className="w-full hidden md:block"
+                  priority
+                />
+                <Image
+                  src={reepotBannerMobile}
+                  alt="Reepot 효도캠페인"
+                  className="w-full block md:hidden"
                   priority
                 />
               </div>
