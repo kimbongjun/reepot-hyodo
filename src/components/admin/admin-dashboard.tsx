@@ -54,7 +54,7 @@ export function AdminDashboard({
             <div className="flex gap-2">
               <a
                 href="/"
-                className="inline-flex h-10 items-center justify-center rounded-md border border-brand/12 bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-[#f7fbff]"
+                className="inline-flex h-10 items-center justify-center rounded-md border border-brand/12 bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-[#FAF8F5]"
               >
                 공개 페이지
               </a>

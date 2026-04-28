@@ -235,7 +235,7 @@ export function AdminManagementCard() {
             <div>
               <h3 className="text-sm font-semibold text-black">시스템 관리자 (ENV)</h3>
               <p className="mt-1 text-xs leading-5 text-black/50">
-                환경변수 <code className="rounded bg-[#f7fbff] px-1 py-0.5">ADMIN_EMAILS</code>로
+                환경변수 <code className="rounded bg-[#FAF8F5] px-1 py-0.5">ADMIN_EMAILS</code>로
                 등록된 계정입니다. 수정하려면 환경변수를 직접 변경하세요.
               </p>
             </div>
@@ -243,7 +243,7 @@ export function AdminManagementCard() {
               {data.envAdmins.map((email) => (
                 <li
                   key={email}
-                  className="flex items-center justify-between rounded-xl border border-brand/8 bg-[#f7fbff] px-4 py-2.5 text-sm text-black/70"
+                  className="flex items-center justify-between rounded-xl border border-brand/8 bg-[#FAF8F5] px-4 py-2.5 text-sm text-black/70"
                 >
                   <span>{email}</span>
                   <span className="rounded-md border border-brand/10 px-2 py-0.5 text-xs text-brand/60">

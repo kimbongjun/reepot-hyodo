@@ -24,7 +24,7 @@ export function HourlyChart({ items }: Props) {
             <div key={item.hour} className="flex flex-col items-center gap-2">
               <div className="flex h-40 items-end">
                 <div
-                  className="w-3 rounded-full bg-[linear-gradient(180deg,#8dd7f7_0%,#2d3b64_100%)]"
+                  className="w-3 rounded-full bg-[linear-gradient(180deg,#EDE4DA_0%,#DAC8B5_100%)]"
                   style={{
                     height: `${Math.max((item.count / max) * 100, item.count ? 10 : 2)}%`
                   }}

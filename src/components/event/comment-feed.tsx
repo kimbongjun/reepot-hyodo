@@ -161,7 +161,7 @@ export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
   return (
     <section
       id="comments"
-      className="rounded-[1.8rem] border border-brand/10 bg-[linear-gradient(180deg,#2d3b64_0%,#3d4d7a_100%)] p-6 text-white shadow-panel"
+      className="rounded-[1.8rem] border border-brand/20 bg-[linear-gradient(180deg,#393D42_0%,#4A4F56_100%)] p-6 text-white shadow-panel"
     >
       <div className="flex items-end justify-between gap-4">
         <div>

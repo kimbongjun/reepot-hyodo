@@ -119,7 +119,7 @@ export function YoutubeSection({ videoItemsJson }: Props) {
       )}
 
       {/* 영상 플레이어 */}
-      <div className="overflow-hidden rounded-[1.5rem] border border-brand/10 bg-[#f7fbff]">
+      <div className="overflow-hidden rounded-[1.5rem] border border-brand/10 bg-[#FAF8F5]">
         {hasVideo ? (
           <div className="aspect-video">
             {active.videoType === "youtube" && embedUrl ? (

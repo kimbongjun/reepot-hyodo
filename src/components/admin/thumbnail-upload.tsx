@@ -45,7 +45,7 @@ export function ThumbnailUpload({ value, onChange }: Props) {
           type="button"
           disabled={uploading}
           onClick={() => inputRef.current?.click()}
-          className="relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-xl border border-brand/12 bg-[#f7fbff] transition-colors hover:border-brand/30 disabled:opacity-50"
+          className="relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-xl border border-brand/12 bg-[#FAF8F5] transition-colors hover:border-brand/30 disabled:opacity-50"
         >
           {value ? (
             <img src={value} alt="" className="h-full w-full object-cover" />
@@ -73,7 +73,7 @@ export function ThumbnailUpload({ value, onChange }: Props) {
             type="button"
             disabled={uploading}
             onClick={() => inputRef.current?.click()}
-            className="rounded-xl border border-brand/15 bg-white px-4 py-2 text-sm font-medium text-black/65 transition-colors hover:border-brand/30 hover:bg-[#f7fbff] disabled:opacity-50"
+            className="rounded-xl border border-brand/15 bg-white px-4 py-2 text-sm font-medium text-black/65 transition-colors hover:border-brand/30 hover:bg-[#FAF8F5] disabled:opacity-50"
           >
             {uploading ? (
               <span className="flex items-center gap-2">

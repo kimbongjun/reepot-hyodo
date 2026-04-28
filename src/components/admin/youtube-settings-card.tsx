@@ -91,7 +91,7 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
         <span className="flex items-center gap-1.5 font-medium text-black/75">
           {label}
           {opts.html && (
-            <span className="rounded-[0.35rem] border border-brand/15 bg-[#f0f7ff] px-1.5 py-0.5 text-[10px] font-bold text-brand/60">
+            <span className="rounded-[0.35rem] border border-brand/15 bg-[#FAF7F2] px-1.5 py-0.5 text-[10px] font-bold text-brand/60">
               HTML
             </span>
           )}
@@ -103,7 +103,7 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
             rows={opts.rows ?? 3}
             placeholder={opts.placeholder}
             spellCheck={false}
-            className="w-full rounded-xl border border-brand/12 bg-[#f7fbff] px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
+            className="w-full rounded-xl border border-brand/12 bg-[#FAF8F5] px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
           />
         ) : (
           <Input value={value} onChange={(e) => set(key, e.target.value)} placeholder={opts.placeholder} />
@@ -115,7 +115,7 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
   /* ── 서브섹션 래퍼 ── */
   function sub(title: string, hint: string, children: React.ReactNode) {
     return (
-      <div className="space-y-4 rounded-2xl border border-brand/8 bg-[#f9fcff] p-4">
+      <div className="space-y-4 rounded-2xl border border-brand/8 bg-[#FAF8F5] p-4">
         <div>
           <p className="text-sm font-semibold text-black">{title}</p>
           <p className="mt-0.5 text-xs leading-5 text-black/45">{hint}</p>
@@ -209,7 +209,7 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
                   <label className="block space-y-1.5 text-sm md:col-span-2">
                     <span className="flex items-center gap-1.5 font-medium text-black/75">
                       설명
-                      <span className="rounded-[0.35rem] border border-brand/15 bg-[#f0f7ff] px-1.5 py-0.5 text-[10px] font-bold text-brand/60">
+                      <span className="rounded-[0.35rem] border border-brand/15 bg-[#FAF7F2] px-1.5 py-0.5 text-[10px] font-bold text-brand/60">
                         HTML
                       </span>
                     </span>
@@ -219,7 +219,7 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
                       rows={2}
                       spellCheck={false}
                       placeholder="설명 문구 또는 HTML 코드"
-                      className="w-full rounded-xl border border-brand/12 bg-[#f7fbff] px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
+                      className="w-full rounded-xl border border-brand/12 bg-[#FAF8F5] px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-sky/40"
                     />
                   </label>
 
@@ -235,7 +235,7 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
                           className={`px-4 py-2 text-sm font-medium transition-colors ${
                             item.videoType === type
                               ? "bg-brand text-white"
-                              : "bg-white text-black/50 hover:bg-[#f7fbff]"
+                              : "bg-white text-black/50 hover:bg-[#FAF8F5]"
                           }`}
                         >
                           {type === "youtube" ? "YouTube" : "MP4"}
@@ -359,7 +359,7 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
               </>
             )}
 
-            <div className="space-y-4 rounded-2xl border border-brand/8 bg-[#f9fcff] p-4">
+            <div className="space-y-4 rounded-2xl border border-brand/8 bg-[#FAF8F5] p-4">
               <div>
                 <p className="text-sm font-semibold text-black">OG 이미지</p>
                 <p className="mt-0.5 text-xs leading-5 text-black/45">
@@ -372,7 +372,7 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
               />
             </div>
 
-            <div className="space-y-4 rounded-2xl border border-brand/8 bg-[#f9fcff] p-4">
+            <div className="space-y-4 rounded-2xl border border-brand/8 bg-[#FAF8F5] p-4">
               <div>
                 <p className="text-sm font-semibold text-black">파비콘</p>
                 <p className="mt-0.5 text-xs leading-5 text-black/45">
@@ -401,7 +401,7 @@ export function YoutubeSettingsCard({ initialSettings }: Props) {
         <form onSubmit={handleSubmit} className="space-y-6">
 
           {/* 탭 네비게이션 */}
-          <div className="flex flex-wrap gap-1 rounded-2xl border border-brand/8 bg-[#f7fbff] p-1">
+          <div className="flex flex-wrap gap-1 rounded-2xl border border-brand/8 bg-[#FAF8F5] p-1">
             {TABS.map((tab) => (
               <button
                 key={tab.id}

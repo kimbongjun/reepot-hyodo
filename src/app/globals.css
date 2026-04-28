@@ -18,11 +18,11 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-  color: #000;
-  background:
-    radial-gradient(circle at top left, rgba(141, 215, 247, 0.52), transparent 22%),
-    radial-gradient(circle at 85% 10%, rgba(45, 59, 100, 0.16), transparent 24%),
-    linear-gradient(180deg, #f8fcff 0%, #eef7ff 42%, #f6fbff 100%);
+  color: #393D42;
+  /* background:
+    radial-gradient(circle at top left, rgba(218, 200, 181, 0.45), transparent 22%),
+    radial-gradient(circle at 85% 10%, rgba(57, 61, 66, 0.10), transparent 24%),
+    linear-gradient(180deg, #FAF8F5 0%, #F5EEE8 42%, #FAF8F5 100%); */
 }
 
 a {
@@ -48,8 +48,8 @@ button {
   pointer-events: none;
   opacity: 0.06;
   background-image:
-    linear-gradient(transparent 0, rgba(45, 59, 100, 0.16) 100%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg fill='%232d3b64' fill-opacity='0.08'%3E%3Ccircle cx='15' cy='30' r='1'/%3E%3Ccircle cx='65' cy='60' r='1'/%3E%3Ccircle cx='100' cy='20' r='1'/%3E%3Ccircle cx='150' cy='80' r='1'/%3E%3Ccircle cx='30' cy='125' r='1'/%3E%3Ccircle cx='85' cy='160' r='1'/%3E%3Ccircle cx='145' cy='145' r='1'/%3E%3C/g%3E%3C/svg%3E");
+    linear-gradient(transparent 0, rgba(57, 61, 66, 0.10) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg fill='%23393D42' fill-opacity='0.08'%3E%3Ccircle cx='15' cy='30' r='1'/%3E%3Ccircle cx='65' cy='60' r='1'/%3E%3Ccircle cx='100' cy='20' r='1'/%3E%3Ccircle cx='150' cy='80' r='1'/%3E%3Ccircle cx='30' cy='125' r='1'/%3E%3Ccircle cx='85' cy='160' r='1'/%3E%3Ccircle cx='145' cy='145' r='1'/%3E%3C/g%3E%3C/svg%3E");
   mix-blend-mode: multiply;
   z-index: -1;
 }
@@ -57,14 +57,14 @@ button {
 .event-card-html {
   font-size: 0.875rem;
   line-height: 1.75;
-  color: rgba(0, 0, 0, 0.65);
+  color: rgba(57, 61, 66, 0.65);
 }
 .event-card-html h1,
 .event-card-html h2,
 .event-card-html h3,
 .event-card-html h4 {
   font-weight: 900;
-  color: #000;
+  color: #393D42;
   letter-spacing: -0.025em;
   margin-top: 1.2em;
   margin-bottom: 0.4em;
@@ -81,18 +81,18 @@ button {
 .event-card-html ul { list-style-type: disc; }
 .event-card-html ol { list-style-type: decimal; }
 .event-card-html li { margin-bottom: 0.2em; }
-.event-card-html strong { font-weight: 700; color: rgba(0, 0, 0, 0.85); }
+.event-card-html strong { font-weight: 700; color: rgba(57, 61, 66, 0.85); }
 .event-card-html em { font-style: italic; }
 .event-card-html a {
-  color: #2d3b64;
+  color: #B8A492;
   text-decoration: underline;
-  text-decoration-color: rgba(45, 59, 100, 0.3);
+  text-decoration-color: rgba(218, 200, 181, 0.5);
 }
-.event-card-html a:hover { text-decoration-color: #2d3b64; }
+.event-card-html a:hover { text-decoration-color: #DAC8B5; }
 .event-card-html img { max-width: 100%; border-radius: 0.75rem; }
 .event-card-html hr {
   border: none;
-  border-top: 1px solid rgba(45, 59, 100, 0.1);
+  border-top: 1px solid rgba(218, 200, 181, 0.4);
   margin: 1em 0;
 }
 
@@ -101,24 +101,24 @@ button {
     --font-sans: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
     --font-display: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
     --font-body: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-    --background: #f8fcff;
-    --foreground: #000000;
+    --background: #FAF8F5;
+    --foreground: #393D42;
     --card: #ffffff;
-    --card-foreground: #000000;
+    --card-foreground: #393D42;
     --popover: #ffffff;
-    --popover-foreground: #000000;
-    --primary: #2d3b64;
-    --primary-foreground: #ffffff;
-    --secondary: #8dd7f7;
-    --secondary-foreground: #2d3b64;
-    --muted: #eaf6fd;
-    --muted-foreground: #4f5c7d;
-    --accent: #dff4ff;
-    --accent-foreground: #2d3b64;
+    --popover-foreground: #393D42;
+    --primary: #DAC8B5;
+    --primary-foreground: #393D42;
+    --secondary: #EDE4DA;
+    --secondary-foreground: #393D42;
+    --muted: #F5EEE8;
+    --muted-foreground: #7A6F65;
+    --accent: #F5EEE8;
+    --accent-foreground: #393D42;
     --destructive: #d14343;
-    --border: rgba(45, 59, 100, 0.14);
-    --input: rgba(45, 59, 100, 0.14);
-    --ring: #8dd7f7;
+    --border: rgba(218, 200, 181, 0.45);
+    --input: rgba(218, 200, 181, 0.45);
+    --ring: #DAC8B5;
     --radius: 1rem;
   }
 
