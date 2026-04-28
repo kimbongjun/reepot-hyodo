@@ -28,7 +28,7 @@ export function EventCardsSection({ sectionTitle, sectionDescription, cards }: P
           )}
           {sectionDescription && (
             <div
-              className="text-center text-xl text-black/50"
+              className="text-center text-xl text-black/50 break-keep"
               dangerouslySetInnerHTML={{ __html: sectionDescription }}
             />
           )}

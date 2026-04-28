@@ -111,7 +111,7 @@ export function YoutubeSection({ videoItemsJson }: Props) {
           )}
           {active.description && (
             <div
-              className="text-xl  text-black/55"
+              className="text-xl  text-black/55 break-keep"
               dangerouslySetInnerHTML={{ __html: active.description }}
             />
           )}
