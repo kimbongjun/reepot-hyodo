@@ -46,7 +46,7 @@ function ThumbItem({ item, index, activeIndex, onSelect, fixedRatio }: ThumbProp
               <span className={`h-1 w-1 rounded-full ${
         index === activeIndex
           ? "bg-[#DA5D60]"
-          : "bg-brand/60"
+          : "bg-[#8A6C8D]"
       }`}  />
               {item.labelText}
             </span>
@@ -217,7 +217,7 @@ export function YoutubeSection({ videoItemsJson }: Props) {
                     type="button"
                     onClick={() => goPage(p)}
                     className={`h-1.5 rounded-full transition-all duration-200 ${
-                      p === mobilePage ? "w-4 bg-brand" : "w-1.5 bg-brand/25"
+                      p === mobilePage ? "w-4 bg-[#8A6C8D]" : "w-1.5 bg-[#8A6C8D]/25"
                     }`}
                   />
                 ))}
