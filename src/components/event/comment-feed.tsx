@@ -19,9 +19,7 @@ export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
   const [comments, setComments] = useState(initialComments.filter((item) => !item.hidden));
   const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [focusedCommentId, setFocusedCommentId] = useState<string | null>(
-    initialComments.find((item) => !item.hidden)?.id ?? null
-  );
+  const [focusedCommentId, setFocusedCommentId] = useState<string | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const articleRefs = useRef<Record<string, HTMLElement | null>>({});
 
