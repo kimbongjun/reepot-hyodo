@@ -21,7 +21,7 @@ export function HeroSection({ title, description }: Props) {
         <div className="space-y-6">
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="rounded-[1.25rem] bg-white shadow-[0_20px_40px_rgba(44, 44, 44, 0.08)]">
+              <div className="rounded-[1.25rem] bg-white shadow-[0_20px_40px_rgba(44, 44, 44, 0.08)] w-full">
                 <Image
                   src={reepotBannerDesktop}
                   alt="Reepot 효도캠페인"
