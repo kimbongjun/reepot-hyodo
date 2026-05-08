@@ -79,20 +79,56 @@ begin
 end;
 $$;
 
-create or replace function public.increment_public_comment_like(target_comment_id uuid)
-returns integer
+create table if not exists public.comment_likes (
+  comment_id uuid not null references public.comment_submissions(id) on delete cascade,
+  ip_address text not null,
+  created_at timestamptz not null default now(),
+  primary key (comment_id, ip_address)
+);
+
+-- Drop old signature before redefining (return type changes from integer to jsonb)
+drop function if exists public.increment_public_comment_like(uuid);
+
+create or replace function public.increment_public_comment_like(
+  target_comment_id uuid,
+  voter_ip text
+)
+returns jsonb
 language plpgsql
 security definer
 as $$
 declare
   next_count integer;
+  rows_inserted integer;
 begin
+  if voter_ip is not null and trim(voter_ip) <> '' then
+    insert into public.comment_likes (comment_id, ip_address)
+    values (target_comment_id, voter_ip)
+    on conflict (comment_id, ip_address) do nothing;
+
+    get diagnostics rows_inserted = row_count;
+
+    if rows_inserted = 0 then
+      select like_count into next_count
+      from public.comment_submissions
+      where id = target_comment_id;
+
+      return jsonb_build_object(
+        'already_liked', true,
+        'like_count', coalesce(next_count, 0)
+      );
+    end if;
+  end if;
+
   update public.comment_submissions
   set like_count = like_count + 1
   where id = target_comment_id
   returning like_count into next_count;
 
-  return coalesce(next_count, 0);
+  return jsonb_build_object(
+    'already_liked', false,
+    'like_count', coalesce(next_count, 0)
+  );
 end;
 $$;
 
@@ -164,3 +200,6 @@ using (true);
 -- like_count 증가는 increment_public_comment_like RPC(SECURITY DEFINER)가 처리하므로
 -- 익명 UPDATE 정책은 불필요하며 보안 위험(닉네임·메시지 직접 변조 가능)이 있어 제거
 drop policy if exists "public comments updatable like count" on public.public_comments;
+
+-- comment_likes는 SECURITY DEFINER RPC 경유로만 접근, 직접 접근 차단
+alter table public.comment_likes enable row level security;

@@ -6,6 +6,30 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { sanitizeRealtimeComment } from "@/lib/comments";
 import type { PublicComment } from "@/lib/types";
 
+const LIKED_KEY = "liked_comment_ids";
+
+function getLikedIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(LIKED_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed.filter((v): v is string => typeof v === "string"));
+  } catch {
+    return new Set();
+  }
+}
+
+function saveLikedId(commentId: string) {
+  try {
+    const current = getLikedIds();
+    current.add(commentId);
+    localStorage.setItem(LIKED_KEY, JSON.stringify([...current]));
+  } catch {
+    // localStorage unavailable — silently ignore
+  }
+}
+
 type Props = {
   initialComments: PublicComment[];
   title: string;
@@ -18,6 +42,7 @@ const DISPLAY_TIME_ZONE = "Asia/Seoul";
 export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
   const [comments, setComments] = useState(initialComments.filter((item) => !item.hidden));
   const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
+  const [likedCommentIds, setLikedCommentIds] = useState<ReadonlySet<string>>(new Set());
   const [feedback, setFeedback] = useState<string | null>(null);
   const [focusedCommentId, setFocusedCommentId] = useState<string | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
@@ -60,8 +85,17 @@ export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
     );
   }
 
+  useEffect(() => {
+    setLikedCommentIds(getLikedIds());
+  }, []);
+
+  function markAsLiked(commentId: string) {
+    saveLikedId(commentId);
+    setLikedCommentIds((current) => new Set([...current, commentId]));
+  }
+
   async function handleLike(commentId: string) {
-    if (pendingLikes[commentId]) {
+    if (pendingLikes[commentId] || likedCommentIds.has(commentId)) {
       return;
     }
 
@@ -88,11 +122,22 @@ export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
         message?: string;
       };
 
+      if (response.status === 409) {
+        // Server confirms already liked — revert optimistic +1 and mark locally
+        updateCommentLikeCount(
+          commentId,
+          typeof result.likeCount === "number" ? result.likeCount : previousLikeCount
+        );
+        markAsLiked(commentId);
+        return;
+      }
+
       if (!response.ok || typeof result.likeCount !== "number") {
         throw new Error(result.message ?? "좋아요 처리에 실패했습니다.");
       }
 
       updateCommentLikeCount(commentId, result.likeCount);
+      markAsLiked(commentId);
     } catch (error) {
       updateCommentLikeCount(commentId, previousLikeCount);
       setFeedback(error instanceof Error ? error.message : "좋아요 처리에 실패했습니다.");
@@ -222,19 +267,29 @@ export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
                 </p>
                 <div className="mt-4 flex items-center justify-between gap-3">
                   <span className="text-xs text-white/55">응원 메시지에 좋아요를 눌러 주세요.</span>
-                  <button
-                    type="button"
-                    onClick={() => handleLike(comment.id)}
-                    disabled={Boolean(pendingLikes[comment.id])}
-                    aria-label={`${comment.nickname} 댓글에 좋아요`}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/16 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <Heart
-                      className="h-4 w-4"
-                      fill={comment.like_count > 0 ? "currentColor" : "none"}
-                    />
-                    <span>{comment.like_count}</span>
-                  </button>
+                  {(() => {
+                    const isLiked = likedCommentIds.has(comment.id);
+                    const isPending = Boolean(pendingLikes[comment.id]);
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => handleLike(comment.id)}
+                        disabled={isPending || isLiked}
+                        aria-label={`${comment.nickname} 댓글에 좋아요`}
+                        className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold transition ${
+                          isLiked
+                            ? "cursor-default border-rose-300/40 bg-rose-500/15 text-rose-200"
+                            : "border-white/15 bg-white/10 text-white hover:bg-white/16 disabled:cursor-not-allowed disabled:opacity-60"
+                        }`}
+                      >
+                        <Heart
+                          className={`h-4 w-4 ${isLiked ? "text-rose-300" : ""}`}
+                          fill={isLiked ? "currentColor" : "none"}
+                        />
+                        <span>{comment.like_count}</span>
+                      </button>
+                    );
+                  })()}
                 </div>
               </article>
             ))}

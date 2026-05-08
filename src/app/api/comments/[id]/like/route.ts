@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { incrementCommentLike } from "@/lib/comments";
+import { getCommentRequestMeta } from "@/lib/request-meta";
 
 type Props = {
   params: Promise<{
@@ -7,12 +8,21 @@ type Props = {
   }>;
 };
 
-export async function POST(_: Request, { params }: Props) {
+export async function POST(request: Request, { params }: Props) {
   const { id } = await params;
+  const { ip_address } = getCommentRequestMeta(request);
 
   try {
-    const likeCount = await incrementCommentLike(id);
-    return NextResponse.json({ likeCount });
+    const result = await incrementCommentLike(id, ip_address);
+
+    if (result.alreadyLiked) {
+      return NextResponse.json(
+        { message: "이미 좋아요를 눌렀습니다.", likeCount: result.likeCount },
+        { status: 409 }
+      );
+    }
+
+    return NextResponse.json({ likeCount: result.likeCount });
   } catch (error) {
     return NextResponse.json(
       {

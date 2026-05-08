@@ -168,25 +168,34 @@ export async function createCommentSubmission(
   };
 }
 
-export async function incrementCommentLike(commentId: string) {
+export async function incrementCommentLike(
+  commentId: string,
+  ipAddress: string | null
+): Promise<{ alreadyLiked: boolean; likeCount: number }> {
   const supabase = createServiceSupabaseClient();
   if (!supabase) {
     throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
   }
 
   const { data, error } = await supabase.rpc("increment_public_comment_like", {
-    target_comment_id: commentId
+    target_comment_id: commentId,
+    voter_ip: ipAddress
   });
 
   if (error) {
     throw error;
   }
 
-  if (typeof data !== "number") {
+  const payload = data as unknown;
+  if (typeof payload !== "object" || payload === null) {
+    throw new Error("좋아요 수를 읽을 수 없습니다.");
+  }
+  const { already_liked, like_count } = payload as Record<string, unknown>;
+  if (typeof already_liked !== "boolean" || typeof like_count !== "number") {
     throw new Error("좋아요 수를 읽을 수 없습니다.");
   }
 
-  return data;
+  return { alreadyLiked: already_liked, likeCount: like_count };
 }
 
 export async function updateCommentHidden(commentId: string, hidden: boolean) {
