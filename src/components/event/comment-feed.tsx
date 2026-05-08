@@ -30,6 +30,8 @@ function saveLikedId(commentId: string) {
   }
 }
 
+type FloatingHeart = { id: string; x: number };
+
 type Props = {
   initialComments: PublicComment[];
   title: string;
@@ -43,10 +45,13 @@ export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
   const [comments, setComments] = useState(initialComments.filter((item) => !item.hidden));
   const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
   const [likedCommentIds, setLikedCommentIds] = useState<ReadonlySet<string>>(new Set());
+  const [poppingIds, setPoppingIds] = useState<ReadonlySet<string>>(new Set());
+  const [floatingHeartsMap, setFloatingHeartsMap] = useState<Record<string, FloatingHeart[]>>({});
   const [feedback, setFeedback] = useState<string | null>(null);
   const [focusedCommentId, setFocusedCommentId] = useState<string | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const articleRefs = useRef<Record<string, HTMLElement | null>>({});
+  const heartCounterRef = useRef(0);
 
   function upsertComment(nextItem: PublicComment, options?: { focus?: boolean }) {
     setComments((current) => {
@@ -94,6 +99,35 @@ export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
     setLikedCommentIds((current) => new Set([...current, commentId]));
   }
 
+  function triggerLikeAnimation(commentId: string) {
+    setPoppingIds((current) => new Set([...current, commentId]));
+    setTimeout(() => {
+      setPoppingIds((current) => {
+        const next = new Set(current);
+        next.delete(commentId);
+        return next;
+      });
+    }, 450);
+
+    const hearts: FloatingHeart[] = Array.from({ length: 5 }, () => ({
+      id: String(++heartCounterRef.current),
+      x: Math.round((Math.random() - 0.5) * 44)
+    }));
+    setFloatingHeartsMap((current) => ({
+      ...current,
+      [commentId]: [...(current[commentId] ?? []), ...hearts]
+    }));
+    setTimeout(() => {
+      setFloatingHeartsMap((current) => {
+        const heartIds = new Set(hearts.map((h) => h.id));
+        return {
+          ...current,
+          [commentId]: (current[commentId] ?? []).filter((h) => !heartIds.has(h.id))
+        };
+      });
+    }, 900);
+  }
+
   async function handleLike(commentId: string) {
     if (pendingLikes[commentId] || likedCommentIds.has(commentId)) {
       return;
@@ -112,6 +146,7 @@ export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
       [commentId]: true
     }));
     updateCommentLikeCount(commentId, previousLikeCount + 1);
+    triggerLikeAnimation(commentId);
 
     try {
       const response = await fetch(`/api/comments/${commentId}/like`, {
@@ -270,24 +305,38 @@ export function CommentFeed({ initialComments, title, emptyMessage }: Props) {
                   {(() => {
                     const isLiked = likedCommentIds.has(comment.id);
                     const isPending = Boolean(pendingLikes[comment.id]);
+                    const isPopping = poppingIds.has(comment.id);
+                    const hearts = floatingHeartsMap[comment.id] ?? [];
                     return (
-                      <button
-                        type="button"
-                        onClick={() => handleLike(comment.id)}
-                        disabled={isPending || isLiked}
-                        aria-label={`${comment.nickname} 댓글에 좋아요`}
-                        className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold transition ${
-                          isLiked
-                            ? "cursor-default border-rose-300/40 bg-rose-500/15 text-rose-200"
-                            : "border-white/15 bg-white/10 text-white hover:bg-white/16 disabled:cursor-not-allowed disabled:opacity-60"
-                        }`}
-                      >
-                        <Heart
-                          className={`h-4 w-4 ${isLiked ? "text-rose-300" : ""}`}
-                          fill={isLiked ? "currentColor" : "none"}
-                        />
-                        <span>{comment.like_count}</span>
-                      </button>
+                      <div className="relative">
+                        {hearts.map((heart) => (
+                          <span
+                            key={heart.id}
+                            aria-hidden
+                            className="animate-float-up pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 text-base leading-none"
+                            style={{ "--heart-tx": `${heart.x}px` } as React.CSSProperties}
+                          >
+                            ❤️
+                          </span>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => handleLike(comment.id)}
+                          disabled={isPending || isLiked}
+                          aria-label={`${comment.nickname} 댓글에 좋아요`}
+                          className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold transition ${
+                            isLiked
+                              ? "cursor-default border-red-400/40 bg-red-500/15 text-red-200"
+                              : "border-white/15 bg-white/10 text-white hover:bg-white/16 disabled:cursor-not-allowed disabled:opacity-60"
+                          }`}
+                        >
+                          <Heart
+                            className={`h-4 w-4 transition-colors ${isLiked ? "text-red-400" : ""} ${isPopping ? "animate-heart-pop" : ""}`}
+                            fill={isLiked ? "currentColor" : "none"}
+                          />
+                          <span>{comment.like_count}</span>
+                        </button>
+                      </div>
                     );
                   })()}
                 </div>
