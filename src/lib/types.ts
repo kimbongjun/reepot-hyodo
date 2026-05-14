@@ -126,4 +126,5 @@ export type SiteSettings = {
   eventCard2ImageUrl: string | null;
   eventCard2Title: string;
   eventCard2Description: string;
+  privacyPolicy: string | null;
 };

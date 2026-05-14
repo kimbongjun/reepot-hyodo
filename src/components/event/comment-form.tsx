@@ -18,6 +18,7 @@ type Props = {
 
 export function CommentForm({ title, description, submitLabel }: Props) {
   const [form, setForm] = useState(initialForm);
+  const [agreed, setAgreed] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -46,6 +47,7 @@ export function CommentForm({ title, description, submitLabel }: Props) {
 
       if (response.ok) {
         setForm(initialForm);
+        setAgreed(false);
       }
     });
   }
@@ -126,9 +128,23 @@ export function CommentForm({ title, description, submitLabel }: Props) {
         </label>
       </div>
 
+      <label className="flex cursor-pointer items-center gap-2.5">
+        <input
+          type="checkbox"
+          required
+          checked={agreed}
+          onChange={(event) => setAgreed(event.target.checked)}
+          className="h-4 w-4 cursor-pointer accent-[#474C52]"
+        />
+        <span className="text-sm text-black/70">
+          기재하신 개인정보의 수집 및 이용에 동의합니다.{" "}
+          <span className="font-semibold text-black/90">(필수)</span>
+        </span>
+      </label>
+
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || !agreed}
         className="inline-flex w-full items-center justify-center rounded-2xl bg-[#474C52] px-5 py-3.5 text-lg font-bold text-white transition hover:bg-[#24304f] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? "등록 중..." : submitLabel}

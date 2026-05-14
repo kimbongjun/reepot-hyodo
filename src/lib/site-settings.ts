@@ -26,7 +26,8 @@ const SITE_SETTING_KEYS = {
   eventCard2WinnerLabel: "event_card_2_winner_label",
   eventCard2ImageUrl: "event_card_2_image_url",
   eventCard2Title: "event_card_2_title",
-  eventCard2Description: "event_card_2_description"
+  eventCard2Description: "event_card_2_description",
+  privacyPolicy: "privacy_policy"
 } satisfies Record<keyof SiteSettings, string>;
 
 export const defaultSiteSettings: SiteSettings = {
@@ -53,7 +54,8 @@ export const defaultSiteSettings: SiteSettings = {
   eventCard2WinnerLabel: "",
   eventCard2ImageUrl: null,
   eventCard2Title: "",
-  eventCard2Description: ""
+  eventCard2Description: "",
+  privacyPolicy: null
 };
 
 function normalizeSettingValue(value: string | null | undefined) {
@@ -102,7 +104,8 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     eventCard2WinnerLabel:         get("eventCard2WinnerLabel")         ?? defaultSiteSettings.eventCard2WinnerLabel,
     eventCard2ImageUrl:            get("eventCard2ImageUrl")            ?? defaultSiteSettings.eventCard2ImageUrl,
     eventCard2Title:               get("eventCard2Title")               ?? defaultSiteSettings.eventCard2Title,
-    eventCard2Description:         get("eventCard2Description")         ?? defaultSiteSettings.eventCard2Description
+    eventCard2Description:         get("eventCard2Description")         ?? defaultSiteSettings.eventCard2Description,
+    privacyPolicy:                 get("privacyPolicy")
   };
 }
 

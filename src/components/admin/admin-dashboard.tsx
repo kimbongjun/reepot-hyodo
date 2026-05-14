@@ -13,6 +13,7 @@ import { DistributionChart } from "./distribution-chart";
 import { LogoutButton } from "./logout-button";
 import { YoutubeSettingsCard } from "./youtube-settings-card";
 import { AdminManagementCard } from "./admin-management-card";
+import { PrivacyPolicyCard } from "./privacy-policy-card";
 
 type Props = {
   comments: CommentSubmission[];
@@ -75,6 +76,7 @@ export function AdminDashboard({
 
       <StatsCards stats={stats} />
       <YoutubeSettingsCard initialSettings={settings} />
+      <PrivacyPolicyCard initialSettings={settings} />
       <AdminManagementCard />
 
       <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr_1fr]">
